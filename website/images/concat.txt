@@ -1,0 +1,3 @@
+file '/sessions/dazzling-wonderful-tesla/mnt/npk_project/website/images/older_woman_cottage_garden.mp4'
+file '/sessions/dazzling-wonderful-tesla/mnt/npk_project/website/images/organic_maine_gardner.mp4'
+file '/sessions/dazzling-wonderful-tesla/mnt/npk_project/website/images/regenerative_farmer.mp4'

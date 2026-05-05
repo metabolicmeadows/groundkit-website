@@ -1,0 +1,1311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>GroundKit — Know Your Soil. Grow With Confidence.</title>
+  <meta name="description" content="GroundKit is a soil-first gardening app for home gardeners and regenerative agriculture enthusiasts. Calculate your NPK needs, plan your garden, and grow smarter every season." />
+
+  <link rel="icon" href="website/images/logo.png" type="image/png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ─── Design Tokens ─────────────────────────────────────────────── */
+    :root {
+      --forest:     #2E4F1A;
+      --forest-mid: #3A6422;
+      --sage:       #6A8F4A;
+      --sage-light: #A8C480;
+      --terracotta: #B85C38;
+      --terra-mid:  #C96A44;
+      --terra-light:#E8956A;
+      --cream:      #F7F2E8;
+      --cream-dark: #EDE6D6;
+      --wheat:      #D4B483;
+      --wheat-light:#EDD9A8;
+      --stone:      #8A7A6A;
+      --walnut:     #5A3A1A;
+      --walnut-dark:#3A2210;
+      --white:      #FFFDF8;
+
+      --font-serif: 'Playfair Display', Georgia, serif;
+      --font-sans:  'Inter', system-ui, sans-serif;
+
+      --radius-sm:  8px;
+      --radius-md:  16px;
+      --radius-lg:  24px;
+      --radius-xl:  36px;
+
+      --shadow-sm:  0 2px 8px rgba(58,42,16,0.08);
+      --shadow-md:  0 6px 24px rgba(58,42,16,0.12);
+      --shadow-lg:  0 16px 56px rgba(58,42,16,0.18);
+
+      --transition-fast: 160ms ease-out;
+      --transition-mid:  260ms ease-out;
+      --transition-slow: 400ms ease-out;
+
+      --max-w: 1200px;
+    }
+
+    /* ─── Reset & Base ──────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; font-size: 16px; }
+    body {
+      font-family: var(--font-sans);
+      background: var(--cream);
+      color: var(--walnut-dark);
+      line-height: 1.65;
+      overflow-x: hidden;
+      overflow-wrap: break-word;
+      word-break: break-word;
+    }
+    img { display: block; max-width: 100%; }
+    a { color: inherit; text-decoration: none; }
+    button { cursor: pointer; border: none; background: none; font-family: inherit; }
+    ul { list-style: none; }
+
+    /* ─── Skip Link ─────────────────────────────────────────────────── */
+    .skip-link {
+      position: absolute; top: -100%; left: 16px;
+      padding: 8px 16px; background: var(--forest); color: var(--white);
+      border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+      font-size: 14px; font-weight: 500; z-index: 9999;
+      transition: top var(--transition-fast);
+    }
+    .skip-link:focus { top: 0; }
+
+    /* ─── Utilities ─────────────────────────────────────────────────── */
+    .container { width: 100%; max-width: var(--max-w); margin: 0 auto; padding: 0 24px; }
+    .reveal {
+      opacity: 0; transform: translateY(28px);
+      transition: opacity var(--transition-slow), transform var(--transition-slow);
+    }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+    .reveal-delay-1 { transition-delay: 80ms; }
+    .reveal-delay-2 { transition-delay: 160ms; }
+    .reveal-delay-3 { transition-delay: 240ms; }
+    .reveal-delay-4 { transition-delay: 320ms; }
+
+    /* ─── Buttons ───────────────────────────────────────────────────── */
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 14px 28px; border-radius: var(--radius-xl);
+      font-family: var(--font-sans); font-size: 15px; font-weight: 600;
+      line-height: 1; cursor: pointer; white-space: nowrap;
+      transition: transform var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast);
+    }
+    .btn:hover  { transform: translateY(-2px); }
+    .btn:active { transform: translateY(0); }
+
+    .btn-primary { background: var(--forest); color: var(--white); box-shadow: 0 4px 16px rgba(46,79,26,0.30); }
+    .btn-primary:hover { background: var(--forest-mid); box-shadow: 0 8px 24px rgba(46,79,26,0.38); }
+
+    .btn-terra { background: var(--terracotta); color: var(--white); box-shadow: 0 4px 16px rgba(184,92,56,0.30); }
+    .btn-terra:hover { background: var(--terra-mid); box-shadow: 0 8px 24px rgba(184,92,56,0.38); }
+
+    .btn-outline { background: transparent; color: var(--forest); border: 2px solid var(--forest); }
+    .btn-outline:hover { background: var(--forest); color: var(--white); }
+
+    .btn-ghost { background: rgba(255,255,255,0.15); color: var(--white); border: 1.5px solid rgba(255,255,255,0.35); backdrop-filter: blur(8px); }
+    .btn-ghost:hover { background: rgba(255,255,255,0.25); }
+
+    /* ─── Navigation ────────────────────────────────────────────────── */
+    .nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      padding: 0 24px; height: 68px;
+      display: flex; align-items: center; justify-content: space-between;
+      background: transparent;
+      border-bottom: 1px solid transparent;
+      transition: background var(--transition-mid), border-color var(--transition-mid), box-shadow var(--transition-mid);
+    }
+    .nav.scrolled {
+      background: rgba(247,242,232,0.94);
+      backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+      border-bottom-color: rgba(90,58,26,0.08);
+      box-shadow: var(--shadow-sm);
+    }
+    .nav .nav-links a { color: rgba(255,255,255,0.8); }
+    .nav.scrolled .nav-links a { color: var(--stone); }
+    .nav .nav-links a:hover { color: var(--white); }
+    .nav.scrolled .nav-links a:hover { color: var(--walnut-dark); }
+    .nav .nav-logo-text { color: var(--white); }
+    .nav.scrolled .nav-logo-text { color: var(--walnut-dark); }
+    .nav .nav-logo-sub { color: rgba(255,255,255,0.5); }
+    .nav.scrolled .nav-logo-sub { color: var(--stone); }
+    .nav .btn-outline { color: var(--white); border-color: rgba(255,255,255,0.5); }
+    .nav.scrolled .btn-outline { color: var(--forest); border-color: var(--forest); }
+    .nav .btn-outline:hover { background: rgba(255,255,255,0.15); }
+    .nav.scrolled .btn-outline:hover { background: var(--forest); color: var(--white); }
+    .nav .btn-primary { background: var(--white); color: var(--forest); }
+    .nav.scrolled .btn-primary { background: var(--forest); color: var(--white); }
+    .nav .nav-hamburger span { background: var(--white); }
+    .nav.scrolled .nav-hamburger span { background: var(--walnut-dark); }
+
+    .nav-logo { display: flex; align-items: center; gap: 10px; }
+    .nav-logo-icon {
+      width: 40px; height: 40px; background: #E8E2CC; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; overflow: hidden;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.12), inset 0 0 0 1px rgba(46,79,26,0.08);
+    }
+    .nav-logo-icon img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .nav-logo-text { font-family: var(--font-serif); font-size: 18px; font-weight: 700; color: var(--walnut-dark); line-height: 1.1; }
+    .nav-logo-sub { font-size: 10px; font-weight: 500; color: var(--stone); letter-spacing: 0.08em; text-transform: uppercase; display: block; }
+
+    .nav-links { display: flex; align-items: center; gap: 32px; }
+    .nav-links a { font-size: 14px; font-weight: 500; color: var(--stone); transition: color var(--transition-fast); }
+    .nav-links a:hover { color: var(--walnut-dark); }
+
+    .nav-cta { display: flex; align-items: center; gap: 12px; }
+
+    .nav-hamburger {
+      display: none; flex-direction: column; gap: 5px;
+      padding: 8px; border-radius: 8px; cursor: pointer;
+      transition: background var(--transition-fast);
+    }
+    .nav-hamburger:hover { background: var(--cream-dark); }
+    .nav-hamburger span {
+      display: block; width: 22px; height: 2px;
+      background: var(--walnut-dark); border-radius: 2px;
+      transition: transform var(--transition-mid), opacity var(--transition-fast);
+    }
+    .nav-hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .nav-hamburger.open span:nth-child(2) { opacity: 0; }
+    .nav-hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    .nav-mobile {
+      display: none; position: fixed;
+      top: 68px; left: 0; right: 0;
+      background: var(--cream); border-bottom: 1px solid rgba(90,58,26,0.1);
+      padding: 20px 24px 28px; z-index: 99; box-shadow: var(--shadow-md);
+    }
+    .nav-mobile.open { display: flex; flex-direction: column; gap: 0; }
+    .nav-mobile a {
+      font-size: 16px; font-weight: 500; color: var(--walnut-dark);
+      padding: 14px 0; border-bottom: 1px solid rgba(90,58,26,0.08);
+    }
+    .nav-mobile .btn { margin-top: 16px; width: 100%; justify-content: center; }
+
+    /* ─── Hero Video ────────────────────────────────────────────────── */
+    .hero {
+      position: relative;
+      width: 100%; height: 100vh; height: 100dvh;
+      min-height: 600px;
+      overflow: hidden;
+      display: flex; flex-direction: column;
+      justify-content: flex-end;
+      background: #1A2E0E;
+    }
+
+    .hero-video-wrap {
+      position: absolute; inset: 0; z-index: 0;
+    }
+    .hero-video-wrap video {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      object-fit: cover; object-position: center;
+    }
+    .hero-overlay {
+      position: absolute; inset: 0; z-index: 1;
+      background: linear-gradient(
+        to bottom,
+        rgba(20, 32, 10, 0.30) 0%,
+        rgba(20, 32, 10, 0.10) 35%,
+        rgba(20, 32, 10, 0.10) 50%,
+        rgba(20, 32, 10, 0.72) 80%,
+        rgba(20, 32, 10, 0.88) 100%
+      );
+    }
+
+    .hero-logo-center {
+      position: absolute; inset: 0; z-index: 2;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding-bottom: 120px;
+      pointer-events: none;
+    }
+    .hero-logo-img {
+      width: clamp(140px, 18vw, 220px);
+      height: clamp(140px, 18vw, 220px);
+      object-fit: cover; border-radius: 28px;
+      box-shadow: 0 8px 48px rgba(0,0,0,0.45), 0 2px 12px rgba(0,0,0,0.3);
+      opacity: 0;
+      transform: scale(0.92);
+      animation: logo-appear 1.1s cubic-bezier(0.22,1,0.36,1) 0.3s forwards;
+    }
+    @keyframes logo-appear {
+      to { opacity: 1; transform: scale(1); }
+    }
+    .hero-logo-wordmark {
+      margin-top: 18px; text-align: center;
+      opacity: 0;
+      animation: logo-appear 1s cubic-bezier(0.22,1,0.36,1) 0.6s forwards;
+    }
+    .hero-logo-wordmark span {
+      display: block; font-family: var(--font-serif);
+      font-size: clamp(22px, 3vw, 34px); font-weight: 700;
+      color: var(--white); letter-spacing: 0.01em;
+      text-shadow: 0 2px 12px rgba(0,0,0,0.4);
+    }
+    .hero-logo-wordmark small {
+      display: block; font-size: clamp(10px, 1.2vw, 13px); font-weight: 500;
+      color: rgba(255,255,255,0.65); letter-spacing: 0.18em;
+      text-transform: uppercase; margin-top: 4px;
+    }
+
+    .hero-bottom {
+      position: relative; z-index: 3;
+      display: flex; align-items: flex-end; justify-content: space-between;
+      padding: 0 48px 48px;
+      gap: 24px;
+    }
+    .hero-copy {
+      max-width: 520px;
+      opacity: 0;
+      transform: translateY(20px);
+      animation: slide-up 0.9s cubic-bezier(0.22,1,0.36,1) 0.8s forwards;
+    }
+    @keyframes slide-up {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 5px 12px;
+      background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.25);
+      border-radius: 99px; font-size: 11px; font-weight: 600;
+      color: rgba(255,255,255,0.9); letter-spacing: 0.06em;
+      text-transform: uppercase; margin-bottom: 16px;
+      backdrop-filter: blur(8px);
+    }
+    .hero-badge-dot {
+      width: 6px; height: 6px; background: var(--sage-light); border-radius: 50%;
+      animation: pulse 2.4s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%       { opacity: 0.5; transform: scale(0.7); }
+    }
+
+    .hero-headline {
+      font-family: var(--font-serif);
+      font-size: clamp(38px, 5.5vw, 72px); font-weight: 700;
+      line-height: 1.06; color: var(--white);
+      margin-bottom: 18px; letter-spacing: -0.02em;
+      text-shadow: 0 2px 16px rgba(0,0,0,0.3);
+    }
+    .hero-headline em { font-style: italic; color: var(--wheat-light); }
+
+    .hero-sub {
+      font-size: clamp(15px, 1.5vw, 18px); color: rgba(255,255,255,0.75);
+      line-height: 1.65; margin-bottom: 28px;
+    }
+    .hero-actions { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+
+    .hero-stats {
+      display: flex; flex-direction: column; gap: 20px;
+      align-items: flex-end; flex-shrink: 0;
+      opacity: 0;
+      animation: slide-up 0.9s cubic-bezier(0.22,1,0.36,1) 1s forwards;
+    }
+    .hero-stat-item { text-align: right; }
+    .hero-stat-number {
+      font-family: var(--font-serif);
+      font-size: clamp(28px, 3.5vw, 44px); font-weight: 700;
+      color: var(--white); line-height: 1;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+    .hero-stat-label {
+      font-size: 12px; font-weight: 500;
+      color: rgba(255,255,255,0.55);
+      letter-spacing: 0.04em;
+    }
+
+    /* Scroll hint */
+    .hero-scroll-hint {
+      position: absolute; bottom: 24px; left: 50%;
+      transform: translateX(-50%);
+      z-index: 3; display: flex; flex-direction: column; align-items: center; gap: 6px;
+      opacity: 0;
+      animation: slide-up 0.8s ease-out 1.4s forwards;
+    }
+    .hero-scroll-hint span {
+      font-size: 10px; font-weight: 600; letter-spacing: 0.14em;
+      text-transform: uppercase; color: rgba(255,255,255,0.45);
+    }
+    .scroll-line {
+      width: 1px; height: 36px;
+      background: linear-gradient(to bottom, rgba(255,255,255,0.4), transparent);
+      animation: scroll-line 2s ease-in-out infinite;
+    }
+    @keyframes scroll-line {
+      0%   { opacity: 1; transform: scaleY(1) translateY(0); }
+      100% { opacity: 0; transform: scaleY(0.5) translateY(12px); }
+    }
+
+    /* Phone mockup */
+    .phone-showcase {
+      background: var(--white);
+      padding: 96px 0;
+      overflow: hidden;
+    }
+    .phone-showcase-inner {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 80px; align-items: center;
+    }
+    .phone-frame {
+      position: relative; width: 260px; height: 542px;
+      background: #0c0c0e; border-radius: 50px;
+      box-shadow: 0 32px 80px rgba(0,0,0,0.42), 0 4px 16px rgba(0,0,0,0.28), inset 0 0 0 2px rgba(255,255,255,0.06), inset 0 0 0 4px #2a2a2c;
+      overflow: hidden; padding: 10px;
+      margin: 0 auto;
+    }
+    .phone-screen {
+      position: relative;
+      width: 100%; height: 100%; border-radius: 43px;
+      overflow: hidden; display: flex; flex-direction: column;
+      background: #0c0c0e;
+    }
+    .phone-screenshot {
+      width: 100%; height: 100%;
+      object-fit: cover; object-position: top center;
+      border-radius: 43px; display: block;
+      transform: scale(1.01);
+      transform-origin: center;
+    }
+
+    .phone-float-wrap { position: relative; display: flex; justify-content: center; }
+    .float-card {
+      position: absolute; background: var(--white); border-radius: var(--radius-md);
+      padding: 12px 14px; box-shadow: var(--shadow-md);
+      display: flex; align-items: center; gap: 10px;
+      animation: float 4s ease-in-out infinite;
+    }
+    .float-card:nth-child(2) { animation-delay: -1.5s; animation-duration: 5s; }
+    .float-card:nth-child(3) { animation-delay: -3s;   animation-duration: 4.5s; }
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50%       { transform: translateY(-10px); }
+    }
+    .float-card-label { font-size: 11px; font-weight: 600; color: var(--stone); }
+    .float-card-value { font-size: 15px; font-weight: 700; color: var(--walnut-dark); font-family: var(--font-serif); }
+    .float-card-1 { top: 40px;    left: -20px; }
+    .float-card-2 { bottom: 120px; left: -30px; }
+    .float-card-3 { top: 100px;   right: -20px; }
+
+    /* ─── Stats Band ────────────────────────────────────────────────── */
+    .stats-band { background: var(--forest); padding: 40px 0; overflow: hidden; }
+    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); text-align: center; }
+    .stat-item { padding: 16px 20px; border-right: 1px solid rgba(255,255,255,0.1); }
+    .stat-item:last-child { border-right: none; }
+    .stat-number { font-family: var(--font-serif); font-size: clamp(32px, 4vw, 48px); font-weight: 700; color: var(--white); line-height: 1; margin-bottom: 6px; }
+    .stat-number span { color: var(--wheat-light); }
+    .stat-label { font-size: 13px; font-weight: 500; color: rgba(255,255,255,0.6); }
+
+    /* ─── Section Shared ────────────────────────────────────────────── */
+    .section { padding: 96px 0; overflow: hidden; }
+    .section-label {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: 11px; font-weight: 700; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--terracotta); margin-bottom: 16px;
+    }
+    .section-label::before { content: ''; display: block; width: 24px; height: 2px; background: var(--terracotta); border-radius: 2px; }
+    .section-heading { font-family: var(--font-serif); font-size: clamp(28px, 4vw, 46px); font-weight: 700; line-height: 1.15; color: var(--walnut-dark); margin-bottom: 20px; letter-spacing: -0.01em; }
+    .section-heading em { font-style: italic; color: var(--forest); }
+    .section-body { font-size: 17px; color: var(--stone); line-height: 1.75; max-width: 580px; }
+
+    /* ─── Features ──────────────────────────────────────────────────── */
+    .features { background: var(--white); }
+    .features-header { text-align: center; max-width: 640px; margin: 0 auto 64px; }
+    .features-header .section-label { justify-content: center; }
+    .features-header .section-label::before { display: none; }
+    .features-header .section-body { margin: 0 auto; }
+
+    .features-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; }
+    .feature-card {
+      background: var(--cream); border-radius: var(--radius-lg); padding: 36px 28px;
+      display: flex; flex-direction: column; gap: 16px;
+      border: 1px solid rgba(90,58,26,0.07);
+      transition: transform var(--transition-mid), box-shadow var(--transition-mid);
+    }
+    .feature-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-lg); }
+    .feature-icon-wrap { width: 56px; height: 56px; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; font-size: 28px; flex-shrink: 0; }
+    .icon-forest { background: rgba(46,79,26,0.10); }
+    .icon-terra  { background: rgba(184,92,56,0.10); }
+    .icon-wheat  { background: rgba(212,180,131,0.25); }
+    .feature-title { font-family: var(--font-serif); font-size: 20px; font-weight: 700; color: var(--walnut-dark); line-height: 1.25; }
+    .feature-desc  { font-size: 15px; color: var(--stone); line-height: 1.7; }
+    .feature-pill  { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 99px; font-size: 12px; font-weight: 600; margin-top: auto; }
+    .pill-forest { background: rgba(46,79,26,0.08); color: var(--forest); }
+    .pill-terra  { background: rgba(184,92,56,0.10); color: var(--terracotta); }
+    .pill-wheat  { background: rgba(212,180,131,0.25); color: var(--walnut); }
+
+    /* ─── How It Works ──────────────────────────────────────────────── */
+    .how-it-works { background: var(--cream); }
+    .how-header { text-align: center; max-width: 560px; margin: 0 auto; }
+    .how-header .section-label { justify-content: center; }
+    .how-header .section-label::before { display: none; }
+    .how-header .section-body { margin: 0 auto; }
+
+    .steps-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; margin-top: 64px; position: relative; }
+    .steps-grid::before {
+      content: ''; position: absolute; top: 36px;
+      left: calc(100% / 6); right: calc(100% / 6); height: 2px;
+      background: repeating-linear-gradient(90deg, var(--wheat-light) 0, var(--wheat-light) 8px, transparent 8px, transparent 16px);
+    }
+    .step-item { padding: 0 32px; text-align: center; }
+    .step-number-wrap {
+      width: 72px; height: 72px; border-radius: 50%;
+      background: var(--white); border: 3px solid var(--wheat);
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 28px;
+      font-family: var(--font-serif); font-size: 26px; font-weight: 700; color: var(--forest);
+      box-shadow: var(--shadow-sm); position: relative; z-index: 2;
+      transition: background var(--transition-mid), border-color var(--transition-mid), color var(--transition-mid);
+    }
+    .step-item:hover .step-number-wrap { background: var(--forest); border-color: var(--forest); color: var(--white); }
+    .step-title { font-family: var(--font-serif); font-size: 20px; font-weight: 700; color: var(--walnut-dark); margin-bottom: 12px; }
+    .step-desc  { font-size: 15px; color: var(--stone); line-height: 1.7; }
+
+    /* ─── Crop Gallery ──────────────────────────────────────────────── */
+    .crop-gallery { background: var(--walnut-dark); padding: 80px 0; overflow: hidden; }
+    .crop-gallery-header { text-align: center; margin-bottom: 48px; }
+    .crop-gallery-header .section-heading { color: var(--white); }
+    .crop-gallery-header .section-body    { color: rgba(255,255,255,0.55); margin: 0 auto; }
+    .crop-gallery-header .section-label   { justify-content: center; color: var(--wheat-light); }
+    .crop-gallery-header .section-label::before { background: var(--wheat-light); display: none; }
+
+    .gallery-track-wrap { overflow: hidden; position: relative; }
+    .gallery-track-wrap::before,
+    .gallery-track-wrap::after {
+      content: ''; position: absolute; top: 0; bottom: 0; width: 100px; z-index: 2; pointer-events: none;
+    }
+    .gallery-track-wrap::before { left: 0;  background: linear-gradient(90deg, var(--walnut-dark), transparent); }
+    .gallery-track-wrap::after  { right: 0; background: linear-gradient(-90deg, var(--walnut-dark), transparent); }
+
+    .gallery-track { display: flex; gap: 16px; animation: scroll-track 38s linear infinite; width: max-content; }
+    .gallery-track:hover { animation-play-state: paused; }
+    @keyframes scroll-track { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+
+    .gallery-track-2 { display: flex; gap: 16px; animation: scroll-track-rev 44s linear infinite; width: max-content; margin-top: 16px; }
+    .gallery-track-2:hover { animation-play-state: paused; }
+    @keyframes scroll-track-rev { 0% { transform: translateX(-50%); } 100% { transform: translateX(0); } }
+
+    .gallery-tile { width: 140px; height: 140px; border-radius: var(--radius-md); overflow: hidden; flex-shrink: 0; position: relative; box-shadow: 0 4px 16px rgba(0,0,0,0.3); transition: transform var(--transition-mid); }
+    .gallery-tile:hover { transform: scale(1.06); }
+    .gallery-tile img { width: 100%; height: 100%; object-fit: cover; }
+    .gallery-tile-name { position: absolute; bottom: 0; left: 0; right: 0; padding: 20px 10px 8px; background: linear-gradient(transparent, rgba(20,12,4,0.78)); font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.92); text-align: center; }
+
+    /* ─── Testimonials ──────────────────────────────────────────────── */
+    .testimonials { background: var(--cream); }
+    .testimonials-header { text-align: center; max-width: 560px; margin: 0 auto 64px; }
+    .testimonials-header .section-label { justify-content: center; }
+    .testimonials-header .section-label::before { display: none; }
+
+    .testimonials-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+    .testimonial-card {
+      background: var(--white); border-radius: var(--radius-lg); padding: 32px 28px;
+      display: flex; flex-direction: column; gap: 20px;
+      border: 1px solid rgba(90,58,26,0.07); box-shadow: var(--shadow-sm);
+      transition: transform var(--transition-mid), box-shadow var(--transition-mid);
+    }
+    .testimonial-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
+    .testimonial-stars { display: flex; gap: 3px; color: var(--wheat); font-size: 16px; }
+    .testimonial-quote { font-family: var(--font-serif); font-size: 17px; font-style: italic; color: var(--walnut-dark); line-height: 1.6; flex: 1; }
+    .testimonial-quote::before { content: '\201C'; font-size: 28px; line-height: 0; vertical-align: -8px; margin-right: 3px; color: var(--wheat); }
+    .testimonial-quote::after  { content: '\201D'; font-size: 28px; line-height: 0; vertical-align: -8px; margin-left: 3px; color: var(--wheat); }
+    .testimonial-author { display: flex; align-items: center; gap: 12px; }
+    .author-avatar { width: 44px; height: 44px; border-radius: 50%; background: var(--cream-dark); display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; }
+    .author-name { font-size: 14px; font-weight: 600; color: var(--walnut-dark); }
+    .author-role { font-size: 12px; color: var(--stone); }
+    .testimonial-crop-tag { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; background: rgba(106,143,74,0.1); color: var(--forest); border-radius: 99px; font-size: 11px; font-weight: 600; }
+
+    /* ─── Pricing ───────────────────────────────────────────────────── */
+    .pricing { background: var(--white); }
+    .pricing-header { text-align: center; max-width: 560px; margin: 0 auto 64px; }
+    .pricing-header .section-label { justify-content: center; }
+    .pricing-header .section-label::before { display: none; }
+    .pricing-header .section-body { margin: 0 auto; }
+
+    .pricing-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; align-items: stretch; }
+    .pricing-card {
+      border-radius: var(--radius-lg); padding: 32px 22px;
+      display: flex; flex-direction: column; gap: 20px;
+      border: 2px solid rgba(90,58,26,0.10); background: var(--cream);
+      transition: transform var(--transition-mid), box-shadow var(--transition-mid);
+      height: 100%;
+    }
+    .pricing-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+    .pricing-card.featured { background: var(--forest); border-color: var(--forest); box-shadow: var(--shadow-lg); }
+    .pricing-card.featured .pricing-name,
+    .pricing-card.featured .pricing-price,
+    .pricing-card.featured .pricing-period,
+    .pricing-card.featured .pricing-feature { color: var(--white); }
+    .pricing-card.featured .pricing-desc { color: rgba(255,255,255,0.65); }
+    .pricing-card.featured .pricing-divider { border-color: rgba(255,255,255,0.15); }
+    .pricing-card.featured .pricing-feature-icon { color: var(--sage-light); }
+
+    .pricing-badge { display: inline-block; padding: 5px 12px; border-radius: 99px; font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; background: var(--wheat-light); color: var(--walnut); align-self: flex-start; }
+    .pricing-card.featured .pricing-badge { background: var(--terra-light); color: var(--white); }
+    .pricing-name { font-family: var(--font-serif); font-size: 20px; font-weight: 700; color: var(--walnut-dark); }
+    .pricing-price { font-family: var(--font-serif); font-size: clamp(32px, 6vw, 44px); font-weight: 700; color: var(--walnut-dark); line-height: 1; }
+    .pricing-price sup { font-size: 20px; vertical-align: super; }
+    .pricing-period { font-size: 14px; color: var(--stone); font-weight: 400; }
+    .pricing-desc { font-size: 14px; color: var(--stone); line-height: 1.6; }
+    .pricing-divider { border: none; border-top: 1px solid rgba(90,58,26,0.10); }
+    .pricing-features { display: flex; flex-direction: column; gap: 14px; }
+    .pricing-feature { display: flex; align-items: flex-start; gap: 10px; font-size: 14px; color: var(--walnut-dark); line-height: 1.4; }
+    .pricing-feature-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; color: var(--forest); }
+    .pricing-feature.muted { color: var(--stone); text-decoration: line-through; }
+    .pricing-feature.muted .pricing-feature-icon { opacity: 0.4; }
+    .pricing-card .btn { width: 100%; justify-content: center; margin-top: auto; }
+    .pricing-card.featured .btn-primary { background: var(--white); color: var(--forest); }
+    .pricing-card.featured .btn-primary:hover { background: var(--cream); }
+
+    /* ─── CTA Banner ────────────────────────────────────────────────── */
+    .cta-banner {
+      background: linear-gradient(135deg, var(--forest) 0%, #4A7028 60%, #3A5A20 100%);
+      padding: 96px 0; position: relative; overflow: hidden;
+    }
+    .cta-banner::before {
+      content: ''; position: absolute; inset: 0;
+      background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+    .cta-inner { text-align: center; position: relative; z-index: 2; }
+    .cta-headline { font-family: var(--font-serif); font-size: clamp(30px, 5vw, 56px); font-weight: 700; color: var(--white); margin-bottom: 20px; line-height: 1.1; letter-spacing: -0.01em; }
+    .cta-headline em { font-style: italic; color: var(--wheat-light); }
+    .cta-sub { font-size: 18px; color: rgba(255,255,255,0.70); margin-bottom: 40px; max-width: 520px; margin-left: auto; margin-right: auto; }
+    .cta-actions { display: flex; justify-content: center; gap: 16px; flex-wrap: wrap; }
+    .app-store-btn {
+      display: inline-flex; align-items: center; gap: 12px;
+      padding: 13px 24px; background: var(--white); color: var(--walnut-dark);
+      border-radius: var(--radius-md); font-size: 14px; font-weight: 600;
+      box-shadow: var(--shadow-md);
+      transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+    }
+    .app-store-btn:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+    .app-store-icon { font-size: 26px; }
+    .app-store-label { font-size: 10px; font-weight: 500; color: var(--stone); }
+    .app-store-name  { font-size: 16px; font-weight: 700; display: block; }
+
+    /* ─── Footer ────────────────────────────────────────────────────── */
+    .footer { background: var(--walnut-dark); padding: 64px 0 40px; overflow: hidden; }
+    .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 48px; margin-bottom: 48px; }
+    .footer-brand .nav-logo-text { color: var(--white); }
+    .footer-brand .nav-logo-sub  { color: rgba(255,255,255,0.4); }
+    .footer-desc { font-size: 14px; line-height: 1.7; color: rgba(255,255,255,0.45); margin: 16px 0 24px; max-width: 280px; }
+    .footer-social { display: flex; gap: 12px; }
+    .footer-social-link { width: 36px; height: 36px; background: rgba(255,255,255,0.07); border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; font-size: 16px; transition: background var(--transition-fast); }
+    .footer-social-link:hover { background: rgba(255,255,255,0.14); }
+    .footer-col-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: rgba(255,255,255,0.6); margin-bottom: 20px; }
+    .footer-links { display: flex; flex-direction: column; gap: 12px; }
+    .footer-links a { font-size: 14px; color: rgba(255,255,255,0.45); transition: color var(--transition-fast); overflow-wrap: break-word; word-break: break-all; }
+    .footer-links a:hover { color: var(--white); }
+    .footer-bottom { border-top: 1px solid rgba(255,255,255,0.06); padding-top: 28px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+    .footer-copy { font-size: 13px; color: rgba(255,255,255,0.3); }
+    .footer-legal { display: flex; gap: 20px; }
+    .footer-legal a { font-size: 13px; color: rgba(255,255,255,0.3); transition: color var(--transition-fast); }
+    .footer-legal a:hover { color: rgba(255,255,255,0.7); }
+
+    /* ─── Responsive ────────────────────────────────────────────────── */
+    @media (max-width: 1024px) {
+      .features-grid    { grid-template-columns: repeat(2, 1fr); }
+      .pricing-grid     { grid-template-columns: repeat(2, 1fr); max-width: 720px; margin: 0 auto; }
+      .footer-grid      { grid-template-columns: 1fr 1fr; }
+      .hero-inner       { gap: 40px; }
+      .float-card-1 { left: -40px; }
+      .float-card-2 { left: -40px; }
+      .float-card-3 { right: -40px; }
+    }
+
+    @media (max-width: 768px) {
+      .nav-links, .nav-cta  { display: none; }
+      .nav-hamburger        { display: flex; }
+
+      /* Hero */
+      .hero-bottom { flex-direction: column; align-items: flex-start; padding: 0 24px 36px; gap: 32px; }
+      .hero-stats  { flex-direction: row; align-items: flex-end; gap: 24px; }
+      .hero-stat-item { text-align: left; }
+      .hero-logo-img { width: clamp(100px, 30vw, 140px); height: clamp(100px, 30vw, 140px); }
+
+      /* Phone showcase */
+      .phone-showcase-inner { grid-template-columns: 1fr; gap: 48px; }
+      .phone-float-wrap { justify-content: center; }
+      .phone-frame { width: 200px; height: 411px; }
+      .float-card { display: none; }
+
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+      .stat-item:nth-child(2) { border-right: none; }
+      .stat-item:nth-child(1), .stat-item:nth-child(2) { border-bottom: 1px solid rgba(255,255,255,0.1); }
+
+      .features-grid    { grid-template-columns: 1fr; }
+      .pricing-grid     { grid-template-columns: 1fr; max-width: 440px; }
+      .steps-grid       { grid-template-columns: 1fr; gap: 48px; }
+      .steps-grid::before { display: none; }
+      .testimonials-grid { grid-template-columns: 1fr; }
+      .footer-grid      { grid-template-columns: 1fr; gap: 36px; }
+      .footer-bottom    { flex-direction: column; align-items: flex-start; }
+      .section { padding: 72px 0; }
+    }
+
+    @media (max-width: 480px) {
+      .hero-actions { flex-direction: column; width: 100%; }
+      .hero-actions .btn { width: 100%; justify-content: center; }
+      .hero-stats   { flex-wrap: wrap; gap: 16px; }
+      .cta-actions  { flex-direction: column; align-items: center; }
+    }
+  </style>
+  <!-- Fallback: make reveal elements visible when JS is disabled -->
+  <noscript>
+    <style>
+      .reveal { opacity: 1 !important; transform: none !important; }
+      .gallery-track, .gallery-track-2 { animation: none !important; }
+      .hero-logo-img, .hero-logo-wordmark, .hero-copy, .hero-stats, .hero-scroll-hint { opacity: 1 !important; transform: none !important; animation: none !important; }
+    </style>
+  </noscript>
+</head>
+<body>
+
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+
+  <!-- ─── Nav ──────────────────────────────────────────────────────── -->
+  <header role="banner">
+    <nav class="nav" role="navigation" aria-label="Main navigation">
+      <a href="#" class="nav-logo" aria-label="GroundKit home">
+        <div class="nav-logo-icon"><img src="website/images/logo.png" alt="GroundKit logo" width="40" height="40" /></div>
+        <div>
+          <span class="nav-logo-text">GroundKit</span>
+          <span class="nav-logo-sub">Soil-First Garden Planner</span>
+        </div>
+      </a>
+
+      <ul class="nav-links" role="list">
+        <li><a href="#features">Features</a></li>
+        <li><a href="#how-it-works">How It Works</a></li>
+        <li><a href="#pricing">Pricing</a></li>
+      </ul>
+
+      <div class="nav-cta">
+        <a href="#pricing" class="btn btn-outline" style="padding:10px 20px;font-size:14px;">See Plans</a>
+        <a href="#download" class="btn btn-primary" style="padding:10px 20px;font-size:14px;">Download Free</a>
+      </div>
+
+      <button class="nav-hamburger" aria-label="Toggle menu" aria-expanded="false" id="hamburger">
+        <span></span><span></span><span></span>
+      </button>
+    </nav>
+
+    <nav class="nav-mobile" id="nav-mobile" aria-label="Mobile navigation">
+      <a href="#features">Features</a>
+      <a href="#how-it-works">How It Works</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#download" class="btn btn-primary">Download Free</a>
+    </nav>
+  </header>
+
+  <main id="main-content">
+
+    <!-- ─── Hero — Full-screen garden video ─────────────────────────── -->
+    <section class="hero" aria-labelledby="hero-headline">
+
+      <!-- Background video -->
+      <div class="hero-video-wrap" aria-hidden="true">
+        <video autoplay muted loop playsinline preload="auto">
+          <source src="website/images/hero.mp4" type="video/mp4" />
+        </video>
+      </div>
+      <div class="hero-overlay" aria-hidden="true"></div>
+
+      <!-- Scroll hint -->
+      <div class="hero-scroll-hint" aria-hidden="true">
+        <div class="scroll-line"></div>
+        <span>Scroll</span>
+      </div>
+
+      <!-- Bottom content -->
+      <div class="hero-bottom">
+        <div class="hero-copy">
+          <div class="hero-badge">
+            <div class="hero-badge-dot"></div>
+            Now Available on iOS &nbsp;
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+          </div>
+          <h1 class="hero-headline" id="hero-headline">
+            Know Your Soil.<br /><em>Grow With Confidence.</em>
+          </h1>
+          <p class="hero-sub">GroundKit gives you the soil intelligence to grow better — NPK calculations, seed planning, garden layout, and a planting calendar built around your zone and season.</p>
+          <div class="hero-actions">
+            <a href="#download" class="btn btn-primary" style="background:var(--white);color:var(--forest);box-shadow:0 4px 20px rgba(0,0,0,0.25);" aria-label="Download GroundKit free">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+              Download Free
+            </a>
+            <a href="#features" class="btn btn-ghost">Explore Features</a>
+          </div>
+        </div>
+
+        <!-- Stats — bottom right -->
+        <div class="hero-stats" aria-label="Key statistics">
+          <div class="hero-stat-item">
+            <div class="hero-stat-number">67<span style="color:var(--wheat-light)">+</span></div>
+            <div class="hero-stat-label">Crops in the database</div>
+          </div>
+          <div class="hero-stat-item">
+            <div class="hero-stat-number">13</div>
+            <div class="hero-stat-label">USDA hardiness zones</div>
+          </div>
+          <div class="hero-stat-item">
+            <div class="hero-stat-number">Free</div>
+            <div class="hero-stat-label">To download &amp; start</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── Phone Showcase ───────────────────────────────────────────── -->
+    <section class="phone-showcase" aria-label="App preview">
+      <div class="container">
+        <div class="phone-showcase-inner">
+          <div class="phone-float-wrap reveal">
+            <div class="float-card float-card-1">
+              <div style="background:rgba(46,79,26,0.10);border-radius:10px;padding:6px;display:flex;align-items:center;justify-content:center;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="var(--forest)" aria-hidden="true"><path d="M6.5 2h11a.5.5 0 0 1 0 1h-.25L15 9.5l4.46 6.97A2 2 0 0 1 17.77 19H6.23a2 2 0 0 1-1.69-3.03L9 9.5 6.75 3H6.5a.5.5 0 0 1 0-1zm2.36 1 2.14 6.5-4.14 6.47A1 1 0 0 0 7.77 17h8.46a1 1 0 0 0 .85-1.53L12.86 9.5 15.14 3z"/></svg>
+              </div>
+              <div><div class="float-card-label">Soil Nitrogen</div><div class="float-card-value">82 ppm</div></div>
+            </div>
+            <div class="float-card float-card-2">
+              <div style="background:rgba(46,79,26,0.10);border-radius:10px;padding:6px;display:flex;align-items:center;justify-content:center;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="var(--forest)" aria-hidden="true"><path d="M17 8C8 10 5.9 16.17 3.82 21.34L5.71 22l1-2.3A4.49 4.49 0 0 0 8 20C19 20 22 3 22 3c-1 2-8 2-5 12 0 0-1.5-2-3-3.5C12 7 14.5 4 17 8z"/></svg>
+              </div>
+              <div><div class="float-card-label">Amendment</div><div class="float-card-value">Blood Meal</div></div>
+            </div>
+            <div class="float-card float-card-3">
+              <div style="background:rgba(184,92,56,0.10);border-radius:10px;padding:6px;display:flex;align-items:center;justify-content:center;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="var(--terracotta)" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+              </div>
+              <div><div class="float-card-label">Garden Beds</div><div class="float-card-value">4 planned</div></div>
+            </div>
+            <div class="phone-frame">
+              <div class="phone-screen">
+                <img class="phone-screenshot" src="website/images/simulator_screenshot_homepage.png" alt="GroundKit home screen showing soil NPK data and amendment recommendations" width="240" height="510" />
+              </div>
+            </div>
+          </div>
+
+          <div class="reveal reveal-delay-1">
+            <p class="section-label">See It In Action</p>
+            <h2 class="section-heading">Your <em>Soil-First</em><br />Garden Dashboard</h2>
+            <p class="section-body">GroundKit meets you where you are. Enter your soil test results, your USDA zone, and your season — and get precise amendment recommendations and a full planting plan built around your beds.</p>
+            <div style="display:flex;flex-direction:column;gap:14px;margin-top:32px;">
+              <div style="display:flex;align-items:center;gap:14px;">
+                <div style="width:40px;height:40px;background:rgba(46,79,26,0.08);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="var(--forest)"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                </div>
+                <span style="font-size:15px;color:var(--walnut-dark);">NPK soil calculator with amendment recommendations</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:14px;">
+                <div style="width:40px;height:40px;background:rgba(46,79,26,0.08);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="var(--forest)"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                </div>
+                <span style="font-size:15px;color:var(--walnut-dark);">Zone-aware planting calendar &amp; seed planner</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:14px;">
+                <div style="width:40px;height:40px;background:rgba(46,79,26,0.08);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="var(--forest)"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                </div>
+                <span style="font-size:15px;color:var(--walnut-dark);">Garden layout tool to visualize your full growing space</span>
+              </div>
+            </div>
+            <a href="#download" class="btn btn-primary" style="margin-top:36px;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+              Download Free on iOS
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── Stats Band ─────────────────────────────────────────────── -->
+    <section class="stats-band" aria-label="App statistics">
+      <div class="container">
+        <div class="stats-grid">
+          <div class="stat-item reveal"><div class="stat-number">67<span>+</span></div><div class="stat-label">Crops &amp; Plants Supported</div></div>
+          <div class="stat-item reveal reveal-delay-1"><div class="stat-number">13</div><div class="stat-label">USDA Hardiness Zones</div></div>
+          <div class="stat-item reveal reveal-delay-2"><div class="stat-number">3</div><div class="stat-label">NPK Nutrient Trackers</div></div>
+          <div class="stat-item reveal reveal-delay-3"><div class="stat-number">100<span>%</span></div><div class="stat-label">Soil-First Approach</div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── Features ──────────────────────────────────────────────── -->
+    <section class="section features" id="features" aria-labelledby="features-heading">
+      <div class="container">
+        <header class="features-header">
+          <p class="section-label">Everything You Need</p>
+          <h2 class="section-heading" id="features-heading">Your Garden, <em>Intelligently</em> Guided</h2>
+          <p class="section-body">From soil test to harvest, GroundKit gives you the soil intelligence and planning tools to grow with confidence every season.</p>
+        </header>
+
+        <div class="features-grid">
+          <article class="feature-card reveal">
+            <div class="feature-icon-wrap icon-forest">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="var(--forest)" aria-hidden="true"><path d="M6.5 2h11a.5.5 0 0 1 0 1h-.25L15 9.5l4.46 6.97A2 2 0 0 1 17.77 19H6.23a2 2 0 0 1-1.69-3.03L9 9.5 6.75 3H6.5a.5.5 0 0 1 0-1zm2.36 1 2.14 6.5-4.14 6.47A1 1 0 0 0 7.77 17h8.46a1 1 0 0 0 .85-1.53L12.86 9.5 15.14 3z"/></svg>
+            </div>
+            <h3 class="feature-title">NPK Soil Calculator</h3>
+            <p class="feature-desc">Enter your soil test results and get precise amendment recommendations tailored to your crops and garden beds. Know exactly what your soil needs before you plant.</p>
+            <span class="feature-pill pill-forest">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17 8C8 10 5.9 16.17 3.82 21.34L5.71 22l1-2.3A4.49 4.49 0 0 0 8 20C19 20 22 3 22 3c-1 2-8 2-5 12 0 0-1.5-2-3-3.5C12 7 14.5 4 17 8z"/></svg>
+              Precision amendments
+            </span>
+          </article>
+          <article class="feature-card reveal reveal-delay-1">
+            <div class="feature-icon-wrap icon-terra">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="var(--terracotta)" aria-hidden="true"><path d="M17 8C8 10 5.9 16.17 3.82 21.34L5.71 22l1-2.3A4.49 4.49 0 0 0 8 20C19 20 22 3 22 3c-1 2-8 2-5 12 0 0-1.5-2-3-3.5C12 7 14.5 4 17 8z"/></svg>
+            </div>
+            <h3 class="feature-title">Seed Planner</h3>
+            <p class="feature-desc">Discover crops matched to your USDA zone, soil, and season. Pin the ones you're growing to track them through the season.</p>
+            <span class="feature-pill pill-terra">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17 8C8 10 5.9 16.17 3.82 21.34L5.71 22l1-2.3A4.49 4.49 0 0 0 8 20C19 20 22 3 22 3c-1 2-8 2-5 12 0 0-1.5-2-3-3.5C12 7 14.5 4 17 8z"/></svg>
+              Zone-matched picks
+            </span>
+          </article>
+          <article class="feature-card reveal reveal-delay-2">
+            <div class="feature-icon-wrap icon-wheat">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="var(--walnut)" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+            </div>
+            <h3 class="feature-title">Garden Planner</h3>
+            <p class="feature-desc">Lay out your beds, assign crops, and visualize your full growing space. See companion plant suggestions and what was grown in each cell last season — all before you dig a single hole.</p>
+            <span class="feature-pill pill-wheat">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+              Visual bed layout
+            </span>
+          </article>
+          <article class="feature-card reveal">
+            <div class="feature-icon-wrap icon-forest">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="var(--forest)" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" ry="2" fill="none" stroke="var(--forest)" stroke-width="2"/><line x1="16" y1="2" x2="16" y2="6" stroke="var(--forest)" stroke-width="2" stroke-linecap="round"/><line x1="8" y1="2" x2="8" y2="6" stroke="var(--forest)" stroke-width="2" stroke-linecap="round"/><line x1="3" y1="10" x2="21" y2="10" stroke="var(--forest)" stroke-width="2"/></svg>
+            </div>
+            <h3 class="feature-title">Planting Calendar</h3>
+            <p class="feature-desc">Track planting events on a visual calendar with frost-date awareness. Set your last and first frost dates to see your safe growing window highlighted in green.</p>
+            <span class="feature-pill pill-forest">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" ry="2" fill="none" stroke="currentColor" stroke-width="2"/><line x1="3" y1="10" x2="21" y2="10" stroke="currentColor" stroke-width="2"/></svg>
+              Zone-aware scheduling
+            </span>
+          </article>
+          <article class="feature-card reveal reveal-delay-1">
+            <div class="feature-icon-wrap icon-wheat">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="var(--walnut)" aria-hidden="true"><path d="M12 2C8.69 2 6 4.69 6 8c0 4.5 6 12 6 12s6-7.5 6-12c0-3.31-2.69-6-6-6zm0 8.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5z"/><ellipse cx="12" cy="21" rx="5" ry="1.5" fill="var(--walnut)" opacity="0.25"/></svg>
+            </div>
+            <h3 class="feature-title">Amendments &amp; Compost</h3>
+            <p class="feature-desc">Browse organic and conventional amendments with an organic-only filter, then plan compost application bed-by-bed with cubic-foot volumes and NPK delivery estimates. Supports standard compost, worm castings, or custom blends.</p>
+            <span class="feature-pill pill-wheat">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17 8C8 10 5.9 16.17 3.82 21.34L5.71 22l1-2.3A4.49 4.49 0 0 0 8 20C19 20 22 3 22 3c-1 2-8 2-5 12 0 0-1.5-2-3-3.5C12 7 14.5 4 17 8z"/></svg>
+              Organic + bed volumes
+            </span>
+          </article>
+          <article class="feature-card reveal reveal-delay-2">
+            <div class="feature-icon-wrap icon-terra">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="var(--terracotta)" aria-hidden="true"><path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/></svg>
+            </div>
+            <h3 class="feature-title">Harvest Journal</h3>
+            <p class="feature-desc">Log what you grow, when you harvest, and what worked. Add photos, tag events, and link entries to your beds and crops.</p>
+            <span class="feature-pill pill-terra">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17 8C8 10 5.9 16.17 3.82 21.34L5.71 22l1-2.3A4.49 4.49 0 0 0 8 20C19 20 22 3 22 3c-1 2-8 2-5 12 0 0-1.5-2-3-3.5C12 7 14.5 4 17 8z"/></svg>
+              Premium
+            </span>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── How It Works ──────────────────────────────────────────── -->
+    <section class="section how-it-works" id="how-it-works" aria-labelledby="how-heading">
+      <div class="container">
+        <header class="how-header">
+          <p class="section-label">Simple Process</p>
+          <h2 class="section-heading" id="how-heading">From Soil Test to <em>Harvest</em> in 3 Steps</h2>
+          <p class="section-body">No agronomist required. GroundKit makes precision soil management and garden planning accessible to every grower.</p>
+        </header>
+
+        <div style="text-align:center;margin-top:40px;margin-bottom:8px;">
+          <div style="display:inline-flex;align-items:center;gap:10px;padding:12px 24px;background:rgba(46,79,26,0.07);border:1px solid rgba(46,79,26,0.15);border-radius:var(--radius-xl);">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="var(--forest)" aria-hidden="true"><path d="M12 2C8.69 2 6 4.69 6 8c0 4.5 6 12 6 12s6-7.5 6-12c0-3.31-2.69-6-6-6zm0 8.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5z"/></svg>
+            <span style="font-size:14px;color:var(--walnut-dark);">Enter your <strong>ZIP code</strong> to automatically detect your USDA hardiness zone.</span>
+          </div>
+        </div>
+
+        <div class="steps-grid">
+          <article class="step-item reveal">
+            <div class="step-number-wrap">1</div>
+            <h3 class="step-title">Enter Your Soil Results</h3>
+            <p class="step-desc">Input your N, P, and K values from a soil test kit, or use the symptom guide if you don't have a test yet. GroundKit remembers everything across all your beds.</p>
+          </article>
+          <article class="step-item reveal reveal-delay-1">
+            <div class="step-number-wrap">2</div>
+            <h3 class="step-title">Get Amendment Recommendations</h3>
+            <p class="step-desc">Receive precise NPK amendment recommendations for your specific crops and beds — with organic and conventional options you can filter to your preference.</p>
+          </article>
+          <article class="step-item reveal reveal-delay-2">
+            <div class="step-number-wrap">3</div>
+            <h3 class="step-title">Plan, Plant &amp; Grow</h3>
+            <p class="step-desc">Use the seed planner, garden layout tool, and planting calendar together. Your growing season, fully organized and built around your soil and zone.</p>
+          </article>
+        </div>
+
+        <div style="margin-top:56px;background:rgba(46,79,26,0.05);border:1px solid rgba(46,79,26,0.12);border-radius:var(--radius-lg);padding:28px 32px;display:flex;align-items:flex-start;gap:18px;" class="reveal">
+          <div style="width:44px;height:44px;background:rgba(46,79,26,0.10);border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="var(--forest)" aria-hidden="true"><path d="M12 3L1 9l4 2.18V17h2v-4.68l2 1.09V17c0 2.76 3.58 5 8 5s8-2.24 8-5v-3.59L23 9 12 3zm6.94 6L12 12.72 5.06 9 12 5.28 18.94 9zM17 16.5c0 1.38-2.24 2.5-5 2.5s-5-1.12-5-2.5v-2.09l5 2.72 5-2.72v2.09z"/></svg>
+          </div>
+          <div>
+            <p style="font-size:15px;font-weight:600;color:var(--walnut-dark);margin-bottom:4px;">Local Extension Support</p>
+            <p style="font-size:14px;color:var(--stone);line-height:1.65;">GroundKit connects you to your local Cooperative Extension agent for region-specific advice. Get expert guidance tailored to your county and climate.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── Gallery ───────────────────────────────────────────────── -->
+    <section class="crop-gallery" aria-labelledby="gallery-heading">
+      <div class="crop-gallery-header">
+        <p class="section-label">67+ Crops</p>
+        <h2 class="section-heading" id="gallery-heading">Every Crop, <em>Beautifully</em> Illustrated</h2>
+        <p class="section-body">Hand-crafted watercolor art for every plant in our database.</p>
+      </div>
+
+      <div class="gallery-track-wrap" aria-hidden="true">
+        <div class="gallery-track">
+          <div class="gallery-tile"><img src="website/images/crop_tomatoes.png"   alt="Tomatoes"   loading="lazy" width="140" height="140"/><div class="gallery-tile-name">Tomatoes</div></div>
+          <div class="gallery-tile"><img src="website/images/crop_kale.png"       alt="Kale"       loading="lazy" width="140" height="140"/><div class="gallery-tile-name">Kale</div></div>
+          <div class="gallery-tile"><img src="website/images/crop_blueberry.png"  alt="Blueberry"  loading="lazy" width="140" height="140"/><div class="gallery-tile-name">Blueberry</div></div>
+          <div class="gallery-tile"><img src="website/images/crop_garlic.png"     alt="Garlic"     loading="lazy" width="140" height="140"/><div class="gallery-tile-name">Garlic</div></div>
+          <div class="gallery-tile"><img src="website/images/crop_carrots.png"    alt="Carrots"    loading="lazy" width="140" height="140"/><div class="gallery-tile-name">Carrots</div></div>
+          <div class="gallery-tile"><img src="website/images/crop_spinach.png"    alt="Spinach"    loading="lazy" width="140" height="140"/><div class="gallery-tile-name">Spinach</div></div>
+          <div class="gallery-tile"><img src="website/images/crop_peppers.png"    alt="Peppers"    loading="lazy" width="140" height="140"/><div class="gallery-tile-name">Peppers</div></div>
+          <div class="gallery-tile"><img src="website/images/crop_broccoli.png"   alt="Broccoli"   loading="lazy" width="140" height="140"/><div class="gallery-tile-name">Broccoli</div></div>
+          <div class="gallery-tile"><img src="website/images/crop_strawberry.png" alt="Strawberry" loading="lazy" width="140" height="140"/><div class="gallery-tile-name">Strawberry</div></div>
+          <div class="gallery-tile"><img src="website/images/crop_peas.png"       alt="Peas"       loading="lazy" width="140" height="140"/><div class="gallery-tile-name">Peas</div></div>
+          <div class="gallery-tile"><img src="website/images/crop_basil.png"      alt="Basil"      loading="lazy" width="140" height="140"/><div class="gallery-tile-name">Basil</div></div>
+          <div class="gallery-tile"><img src="website/images/crop_lavender.png"   alt="Lavender"   loading="lazy" width="140" height="140"/><div class="gallery-tile-name">Lavender</div></div>
+          <div class="gallery-tile"><img src="website/images/crop_sunflowers.png" alt="Sunflowers" loading="lazy" width="140" height="140"/><div class="gallery-tile-name">Sunflowers</div></div>
+          <div class="gallery-tile"><img src="website/images/crop_cucumbers.png"  alt="Cucumbers"  loading="lazy" width="140" height="140"/><div class="gallery-tile-name">Cucumbers</div></div>
+          <div class="gallery-tile"><img src="website/images/crop_zucchini.png"   alt="Zucchini"   loading="lazy" width="140" height="140"/><div class="gallery-tile-name">Zucchini</div></div>
+          <div class="gallery-tile"><img src="website/images/crop_rosemary.png"   alt="Rosemary"   loading="lazy" width="140" height="140"/><div class="gallery-tile-name">Rosemary</div></div>
+          <div class="gallery-tile"><img src="website/images/crop_mint.png"       alt="Mint"       loading="lazy" width="140" height="140"/><div class="gallery-tile-name">Mint</div></div>
+          <div class="gallery-tile"><img src="website/images/crop_onions.png"     alt="Onions"     loading="lazy" width="140" height="140"/><div class="gallery-tile-name">Onions</div></div>
+          <!-- duplicate for seamless scroll -->
+          <div class="gallery-tile"><img src="website/images/crop_tomatoes.png"   alt="" loading="lazy" width="140" height="140"/><div class="gallery-tile-name">Tomatoes</div></div>
+          <div class="gallery-tile"><img src="website/images/crop_kale.png"       alt="" loading="lazy" width="140" height="140"/><div class="gallery-tile-name">Kale</div></div>
+          <div class="gallery-tile"><img src="website/images/crop_blueberry.png"  alt="" loading="lazy" width="140" height="140"/><div class="gallery-tile-name">Blueberry</div></div>
+          <div class="gallery-tile"><img src="website/images/crop_garlic.png"     alt="" loading="lazy" width="140" height="140"/><div class="gallery-tile-name">Garlic</div></div>
+          <div class="gallery-tile"><img src="website/images/crop_carrots.png"    alt="" loading="lazy" width="140" height="140"/><div class="gallery-tile-name">Carrots</div></div>
+          <div class="gallery-tile"><img src="website/images/crop_spinach.png"    alt="" loading="lazy" width="140" height="140"/><div class="gallery-tile-name">Spinach</div></div>
+          <div class="gallery-tile"><img src="website/images/crop_peppers.png"    alt="" loading="lazy" width="140" height="140"/><div class="gallery-tile-name">Peppers</div></div>
+          <div class="gallery-tile"><img src="website/images/crop_broccoli.png"   alt="" loading="lazy" width="140" height="140"/><div class="gallery-tile-name">Broccoli</div></div>
+          <div class="gallery-tile"><img src="website/images/crop_strawberry.png" alt="" loading="lazy" width="140" height="140"/><div class="gallery-tile-name">Strawberry</div></div>
+          <div class="gallery-tile"><img src="website/images/crop_peas.png"       alt="" loading="lazy" width="140" height="140"/><div class="gallery-tile-name">Peas</div></div>
+          <div class="gallery-tile"><img src="website/images/crop_basil.png"      alt="" loading="lazy" width="140" height="140"/><div class="gallery-tile-name">Basil</div></div>
+          <div class="gallery-tile"><img src="website/images/crop_lavender.png"   alt="" loading="lazy" width="140" height="140"/><div class="gallery-tile-name">Lavender</div></div>
+          <div class="gallery-tile"><img src="website/images/crop_sunflowers.png" alt="" loading="lazy" width="140" height="140"/><div class="gallery-tile-name">Sunflowers</div></div>
+          <div class="gallery-tile"><img src="website/images/crop_cucumbers.png"  alt="" loading="lazy" width="140" height="140"/><div class="gallery-tile-name">Cucumbers</div></div>
+          <div class="gallery-tile"><img src="website/images/crop_zucchini.png"   alt="" loading="lazy" width="140" height="140"/><div class="gallery-tile-name">Zucchini</div></div>
+          <div class="gallery-tile"><img src="website/images/crop_rosemary.png"   alt="" loading="lazy" width="140" height="140"/><div class="gallery-tile-name">Rosemary</div></div>
+          <div class="gallery-tile"><img src="website/images/crop_mint.png"       alt="" loading="lazy" width="140" height="140"/><div class="gallery-tile-name">Mint</div></div>
+          <div class="gallery-tile"><img src="website/images/crop_onions.png"     alt="" loading="lazy" width="140" height="140"/><div class="gallery-tile-name">Onions</div></div>
+        </div>
+
+        <div class="gallery-track-2">
+          <div class="gallery-tile"><img src="website/images/crop_beets.png"       alt="Beets"      loading="lazy" width="140" height="140"/><div class="gallery-tile-name">Beets</div></div>
+          <div class="gallery-tile"><img src="website/images/crop_squash.png"      alt="Squash"     loading="lazy" width="140" height="140"/><div class="gallery-tile-name">Squash</div></div>
+          <div class="gallery-tile"><img src="website/images/crop_potatoes.png"    alt="Potatoes"   loading="lazy" width="140" height="140"/><div class="gallery-tile-name">Potatoes</div></div>
+          <div class="gallery-tile"><img src="website/images/crop_eggplant.png"    alt="Eggplant"   loading="lazy" width="140" height="140"/><div class="gallery-tile-name">Eggplant</div></div>
+          <div class="gallery-tile"><img src="website/images/crop_beans.png"       alt="Beans"      loading="lazy" width="140" height="140"/><div class="gallery-tile-name">Beans</div></div>
+          <div class="gallery-tile"><img src="website/images/crop_lettuce.png"     alt="Lettuce"    loading="lazy" width="140" height="140"/><div class="gallery-tile-name">Lettuce</div></div>
+          <div class="gallery-tile"><img src="website/images/crop_raspberry.png"   alt="Raspberry"  loading="lazy" width="140" height="140"/><div class="gallery-tile-name">Raspberry</div></div>
+          <div class="gallery-tile"><img src="website/images/crop_thyme.png"       alt="Thyme"      loading="lazy" width="140" height="140"/><div class="gallery-tile-name">Thyme</div></div>
+          <div class="gallery-tile"><img src="website/images/crop_sage.png"        alt="Sage"       loading="lazy" width="140" height="140"/><div class="gallery-tile-name">Sage</div></div>
+          <div class="gallery-tile"><img src="website/images/crop_pumpkin.png"     alt="Pumpkin"    loading="lazy" width="140" height="140"/><div class="gallery-tile-name">Pumpkin</div></div>
+          <div class="gallery-tile"><img src="website/images/crop_sweet_corn.png"  alt="Sweet Corn" loading="lazy" width="140" height="140"/><div class="gallery-tile-name">Sweet Corn</div></div>
+          <div class="gallery-tile"><img src="website/images/crop_marigold.png"    alt="Marigold"   loading="lazy" width="140" height="140"/><div class="gallery-tile-name">Marigold</div></div>
+          <div class="gallery-tile"><img src="website/images/crop_zinnia.png"      alt="Zinnia"     loading="lazy" width="140" height="140"/><div class="gallery-tile-name">Zinnia</div></div>
+          <div class="gallery-tile"><img src="website/images/crop_chives.png"      alt="Chives"     loading="lazy" width="140" height="140"/><div class="gallery-tile-name">Chives</div></div>
+          <div class="gallery-tile"><img src="website/images/crop_dill.png"        alt="Dill"       loading="lazy" width="140" height="140"/><div class="gallery-tile-name">Dill</div></div>
+          <div class="gallery-tile"><img src="website/images/crop_cilantro.png"    alt="Cilantro"   loading="lazy" width="140" height="140"/><div class="gallery-tile-name">Cilantro</div></div>
+          <div class="gallery-tile"><img src="website/images/crop_watermelon.png"  alt="Watermelon" loading="lazy" width="140" height="140"/><div class="gallery-tile-name">Watermelon</div></div>
+          <div class="gallery-tile"><img src="website/images/crop_radishes.png"    alt="Radishes"   loading="lazy" width="140" height="140"/><div class="gallery-tile-name">Radishes</div></div>
+          <!-- duplicate -->
+          <div class="gallery-tile"><img src="website/images/crop_beets.png"       alt="" loading="lazy" width="140" height="140"/><div class="gallery-tile-name">Beets</div></div>
+          <div class="gallery-tile"><img src="website/images/crop_squash.png"      alt="" loading="lazy" width="140" height="140"/><div class="gallery-tile-name">Squash</div></div>
+          <div class="gallery-tile"><img src="website/images/crop_potatoes.png"    alt="" loading="lazy" width="140" height="140"/><div class="gallery-tile-name">Potatoes</div></div>
+          <div class="gallery-tile"><img src="website/images/crop_eggplant.png"    alt="" loading="lazy" width="140" height="140"/><div class="gallery-tile-name">Eggplant</div></div>
+          <div class="gallery-tile"><img src="website/images/crop_beans.png"       alt="" loading="lazy" width="140" height="140"/><div class="gallery-tile-name">Beans</div></div>
+          <div class="gallery-tile"><img src="website/images/crop_lettuce.png"     alt="" loading="lazy" width="140" height="140"/><div class="gallery-tile-name">Lettuce</div></div>
+          <div class="gallery-tile"><img src="website/images/crop_raspberry.png"   alt="" loading="lazy" width="140" height="140"/><div class="gallery-tile-name">Raspberry</div></div>
+          <div class="gallery-tile"><img src="website/images/crop_thyme.png"       alt="" loading="lazy" width="140" height="140"/><div class="gallery-tile-name">Thyme</div></div>
+          <div class="gallery-tile"><img src="website/images/crop_sage.png"        alt="" loading="lazy" width="140" height="140"/><div class="gallery-tile-name">Sage</div></div>
+          <div class="gallery-tile"><img src="website/images/crop_pumpkin.png"     alt="" loading="lazy" width="140" height="140"/><div class="gallery-tile-name">Pumpkin</div></div>
+          <div class="gallery-tile"><img src="website/images/crop_sweet_corn.png"  alt="" loading="lazy" width="140" height="140"/><div class="gallery-tile-name">Sweet Corn</div></div>
+          <div class="gallery-tile"><img src="website/images/crop_marigold.png"    alt="" loading="lazy" width="140" height="140"/><div class="gallery-tile-name">Marigold</div></div>
+          <div class="gallery-tile"><img src="website/images/crop_zinnia.png"      alt="" loading="lazy" width="140" height="140"/><div class="gallery-tile-name">Zinnia</div></div>
+          <div class="gallery-tile"><img src="website/images/crop_chives.png"      alt="" loading="lazy" width="140" height="140"/><div class="gallery-tile-name">Chives</div></div>
+          <div class="gallery-tile"><img src="website/images/crop_dill.png"        alt="" loading="lazy" width="140" height="140"/><div class="gallery-tile-name">Dill</div></div>
+          <div class="gallery-tile"><img src="website/images/crop_cilantro.png"    alt="" loading="lazy" width="140" height="140"/><div class="gallery-tile-name">Cilantro</div></div>
+          <div class="gallery-tile"><img src="website/images/crop_watermelon.png"  alt="" loading="lazy" width="140" height="140"/><div class="gallery-tile-name">Watermelon</div></div>
+          <div class="gallery-tile"><img src="website/images/crop_radishes.png"    alt="" loading="lazy" width="140" height="140"/><div class="gallery-tile-name">Radishes</div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── Pricing ───────────────────────────────────────────────── -->
+    <section class="section pricing" id="pricing" aria-labelledby="pricing-heading">
+      <div class="container">
+        <header class="pricing-header">
+          <p class="section-label">Flexible Plans</p>
+          <h2 class="section-heading" id="pricing-heading">Grow Without <em>Limits</em></h2>
+          <p class="section-body">Start free. Unlock everything when you're ready. No hidden fees, no upsells.</p>
+        </header>
+
+        <div class="pricing-grid">
+          <article class="pricing-card reveal">
+            <div>
+              <span class="pricing-badge">Free Tier</span>
+              <h3 class="pricing-name" style="margin-top:16px;">Seedling</h3>
+            </div>
+            <div>
+              <div class="pricing-price"><sup>$</sup>0</div>
+              <p class="pricing-period">Always free</p>
+            </div>
+            <p class="pricing-desc">Get started with the basics and try GroundKit before you upgrade.</p>
+            <hr class="pricing-divider" />
+            <ul class="pricing-features">
+              <li class="pricing-feature"><span class="pricing-feature-icon">✓</span>Basic NPK calculator</li>
+              <li class="pricing-feature"><span class="pricing-feature-icon">✓</span>1 garden bed</li>
+              <li class="pricing-feature"><span class="pricing-feature-icon">✓</span>5 pinned seeds</li>
+              <li class="pricing-feature"><span class="pricing-feature-icon">✓</span>Basic planting calendar</li>
+              <li class="pricing-feature muted"><span class="pricing-feature-icon">✗</span>Amendment library</li>
+              <li class="pricing-feature muted"><span class="pricing-feature-icon">✗</span>Harvest &amp; Growth Journal</li>
+            </ul>
+            <a href="#download" class="btn btn-outline">Download Free</a>
+          </article>
+
+          <article class="pricing-card reveal reveal-delay-1">
+            <div>
+              <span class="pricing-badge">Monthly</span>
+              <h3 class="pricing-name" style="margin-top:16px;">Sprout</h3>
+            </div>
+            <div>
+              <div class="pricing-price"><sup>$</sup>3.99</div>
+              <p class="pricing-period">per month</p>
+            </div>
+            <p class="pricing-desc">Full premium access with month-to-month flexibility. Cancel anytime.</p>
+            <hr class="pricing-divider" />
+            <ul class="pricing-features">
+              <li class="pricing-feature"><span class="pricing-feature-icon">✓</span>Full NPK Calculator</li>
+              <li class="pricing-feature"><span class="pricing-feature-icon">✓</span>Unlimited garden beds</li>
+              <li class="pricing-feature"><span class="pricing-feature-icon">✓</span>Unlimited seed pinning</li>
+              <li class="pricing-feature"><span class="pricing-feature-icon">✓</span>Full Planting Calendar</li>
+              <li class="pricing-feature"><span class="pricing-feature-icon">✓</span>Full Amendment Library</li>
+              <li class="pricing-feature"><span class="pricing-feature-icon">✓</span>Harvest &amp; Growth Journal</li>
+            </ul>
+            <a href="#download" class="btn btn-outline">Start Monthly</a>
+          </article>
+
+          <article class="pricing-card featured reveal reveal-delay-2">
+            <div>
+              <span class="pricing-badge">Most Popular · Save 50%</span>
+              <h3 class="pricing-name" style="margin-top:16px;">Harvest</h3>
+            </div>
+            <div>
+              <div class="pricing-price"><sup>$</sup>19.99</div>
+              <p class="pricing-period">per year · billed annually</p>
+            </div>
+            <p class="pricing-desc">The complete tool for the serious home gardener. Save 50% vs monthly.</p>
+            <hr class="pricing-divider" />
+            <ul class="pricing-features">
+              <li class="pricing-feature"><span class="pricing-feature-icon">✓</span>Full NPK Calculator</li>
+              <li class="pricing-feature"><span class="pricing-feature-icon">✓</span>Unlimited garden beds</li>
+              <li class="pricing-feature"><span class="pricing-feature-icon">✓</span>Unlimited seed pinning</li>
+              <li class="pricing-feature"><span class="pricing-feature-icon">✓</span>Full Planting Calendar</li>
+              <li class="pricing-feature"><span class="pricing-feature-icon">✓</span>Full Amendment Library</li>
+              <li class="pricing-feature"><span class="pricing-feature-icon">✓</span>Harvest &amp; Growth Journal</li>
+            </ul>
+            <a href="#download" class="btn btn-primary">Start Annual Plan</a>
+          </article>
+
+          <article class="pricing-card reveal reveal-delay-3">
+            <div>
+              <span class="pricing-badge">Best Value</span>
+              <h3 class="pricing-name" style="margin-top:16px;">Lifetime</h3>
+            </div>
+            <div>
+              <div class="pricing-price"><sup>$</sup>49.99</div>
+              <p class="pricing-period">one-time · forever</p>
+            </div>
+            <p class="pricing-desc">Pay once, grow forever. All future features included at no additional cost.</p>
+            <hr class="pricing-divider" />
+            <ul class="pricing-features">
+              <li class="pricing-feature"><span class="pricing-feature-icon">✓</span>Everything in Harvest</li>
+              <li class="pricing-feature"><span class="pricing-feature-icon">✓</span>All future features</li>
+              <li class="pricing-feature"><span class="pricing-feature-icon">✓</span>No recurring payments</li>
+              <li class="pricing-feature"><span class="pricing-feature-icon">✓</span>One-time payment</li>
+              <li class="pricing-feature"><span class="pricing-feature-icon">✓</span>Lifetime updates</li>
+            </ul>
+            <a href="#download" class="btn btn-terra">Get Lifetime Access</a>
+          </article>
+        </div>
+
+        <p style="text-align:center;margin-top:32px;font-size:14px;color:var(--stone);">
+          All paid plans unlock the same premium features. Subscriptions auto-renew until cancelled in App Store settings.
+        </p>
+      </div>
+    </section>
+
+    <!-- ─── CTA ───────────────────────────────────────────────────── -->
+    <section class="cta-banner" id="download" aria-labelledby="cta-heading">
+      <div class="container">
+        <div class="cta-inner">
+          <h2 class="cta-headline" id="cta-heading">Better Soil Starts<br /><em>Today</em></h2>
+          <p class="cta-sub">Download GroundKit free. Enter your first soil reading and get your personalized amendment plan in under 60 seconds.</p>
+          <div class="cta-actions">
+            <a href="https://apps.apple.com/app/groundkit/id0000000000" class="app-store-btn" aria-label="Download on the App Store">
+              <svg class="app-store-icon" width="28" height="28" viewBox="0 0 24 24" fill="var(--walnut-dark)" aria-hidden="true"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+              <div><span class="app-store-label">Download on the</span><span class="app-store-name">App Store</span></div>
+            </a>
+            <a href="#how-it-works" class="btn btn-ghost">See How It Works</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ─── Footer ───────────────────────────────────────────────────── -->
+  <footer class="footer" role="contentinfo">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <a href="#" class="nav-logo" aria-label="GroundKit">
+            <div class="nav-logo-icon"><img src="website/images/logo.png" alt="" width="40" height="40" /></div>
+            <div><span class="nav-logo-text">GroundKit</span><span class="nav-logo-sub">Soil-First Garden Planner</span></div>
+          </a>
+          <p class="footer-desc">Soil-first gardening tools for home gardeners and regenerative farmers.</p>
+          <div class="footer-social" aria-label="Social media">
+            <a href="#" class="footer-social-link" aria-label="Instagram">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="rgba(255,255,255,0.6)" aria-hidden="true"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162S8.597 18.163 12 18.163s6.162-2.759 6.162-6.162S15.403 5.838 12 5.838zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+            </a>
+            <a href="#" class="footer-social-link" aria-label="TikTok">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="rgba(255,255,255,0.6)" aria-hidden="true"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/></svg>
+            </a>
+            <a href="#" class="footer-social-link" aria-label="Pinterest">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="rgba(255,255,255,0.6)" aria-hidden="true"><path d="M12 0C5.373 0 0 5.372 0 12c0 5.084 3.163 9.426 7.627 11.174-.105-.949-.2-2.405.042-3.441.218-.937 1.407-5.965 1.407-5.965s-.359-.719-.359-1.782c0-1.668.967-2.914 2.171-2.914 1.023 0 1.518.769 1.518 1.69 0 1.029-.655 2.568-.994 3.995-.283 1.194.599 2.169 1.777 2.169 2.133 0 3.772-2.249 3.772-5.495 0-2.873-2.064-4.882-5.012-4.882-3.414 0-5.418 2.561-5.418 5.207 0 1.031.397 2.138.893 2.738a.36.36 0 0 1 .083.345l-.333 1.36c-.053.22-.174.267-.402.161-1.499-.698-2.436-2.889-2.436-4.649 0-3.785 2.75-7.262 7.929-7.262 4.163 0 7.398 2.967 7.398 6.931 0 4.136-2.607 7.464-6.227 7.464-1.216 0-2.359-.632-2.75-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146C9.57 23.812 10.763 24 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0z"/></svg>
+            </a>
+            <a href="#" class="footer-social-link" aria-label="YouTube">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="rgba(255,255,255,0.6)" aria-hidden="true"><path d="M23.495 6.205a3.007 3.007 0 0 0-2.088-2.088c-1.87-.501-9.396-.501-9.396-.501s-7.507-.01-9.396.501A3.007 3.007 0 0 0 .527 6.205a31.247 31.247 0 0 0-.522 5.805 31.247 31.247 0 0 0 .522 5.783 3.007 3.007 0 0 0 2.088 2.088c1.868.502 9.396.502 9.396.502s7.506 0 9.396-.502a3.007 3.007 0 0 0 2.088-2.088 31.247 31.247 0 0 0 .5-5.783 31.247 31.247 0 0 0-.5-5.805zM9.609 15.601V8.408l6.264 3.602z"/></svg>
+            </a>
+          </div>
+        </div>
+        <nav aria-label="Product">
+          <p class="footer-col-title">Product</p>
+          <ul class="footer-links">
+            <li><a href="#features">Features</a></li>
+            <li><a href="#how-it-works">How It Works</a></li>
+            <li><a href="#pricing">Pricing</a></li>
+            <li><a href="#download">Download</a></li>
+          </ul>
+        </nav>
+        <nav aria-label="Learn">
+          <p class="footer-col-title">Learn</p>
+          <ul class="footer-links">
+            <li><a href="#">NPK Guide</a></li>
+            <li><a href="#">USDA Zones</a></li>
+            <li><a href="#">Soil Amendments 101</a></li>
+            <li><a href="#">Compost Guide</a></li>
+            <li><a href="#">Crop Encyclopedia</a></li>
+          </ul>
+        </nav>
+        <nav aria-label="Support">
+          <p class="footer-col-title">Support</p>
+          <ul class="footer-links">
+            <li><a href="#">Help Center</a></li>
+            <li><a href="#">Contact Us</a></li>
+            <li><a href="legal/privacy-policy.html">Privacy Policy</a></li>
+            <li><a href="legal/terms-of-use.html">Terms of Service</a></li>
+          </ul>
+        </nav>
+      </div>
+      <div class="footer-bottom">
+        <p class="footer-copy">© 2026 GroundKit. All rights reserved.</p>
+        <div class="footer-legal">
+          <a href="legal/privacy-policy.html">Privacy</a>
+          <a href="legal/terms-of-use.html">Terms</a>
+          <a href="#">Cookies</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Nav: transparent over hero, cream when scrolled
+    const nav       = document.querySelector('.nav');
+    const hamburger = document.getElementById('hamburger');
+    const navMobile = document.getElementById('nav-mobile');
+
+    function updateNav() {
+      const heroH = document.querySelector('.hero')?.offsetHeight || window.innerHeight;
+      const scrolled = window.scrollY > heroH * 0.15;
+      nav.classList.toggle('scrolled', scrolled);
+    }
+    window.addEventListener('scroll', updateNav, { passive: true });
+    updateNav();
+
+    hamburger.addEventListener('click', () => {
+      const open = navMobile.classList.toggle('open');
+      hamburger.classList.toggle('open', open);
+      hamburger.setAttribute('aria-expanded', open);
+    });
+
+    document.querySelectorAll('.nav-mobile a').forEach(l =>
+      l.addEventListener('click', () => {
+        navMobile.classList.remove('open');
+        hamburger.classList.remove('open');
+        hamburger.setAttribute('aria-expanded', false);
+      })
+    );
+    document.addEventListener('click', e => {
+      if (!navMobile.contains(e.target) && !hamburger.contains(e.target)) {
+        navMobile.classList.remove('open');
+        hamburger.classList.remove('open');
+        hamburger.setAttribute('aria-expanded', false);
+      }
+    });
+
+    // Scroll reveal via IntersectionObserver
+    const reveals   = document.querySelectorAll('.reveal');
+    const observer  = new IntersectionObserver(entries => {
+      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+    }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+    reveals.forEach(el => observer.observe(el));
+
+    // Respect prefers-reduced-motion
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+    function applyMotionPrefs(mq) {
+      if (mq.matches) {
+        document.querySelectorAll('.gallery-track,.gallery-track-2').forEach(t => t.style.animationPlayState = 'paused');
+        document.querySelectorAll('.float-card,.hero-badge-dot').forEach(el => el.style.animation = 'none');
+        reveals.forEach(el => el.classList.add('visible'));
+      }
+    }
+    applyMotionPrefs(mq);
+    mq.addEventListener('change', applyMotionPrefs);
+
+    // Smooth scroll with nav offset
+    document.querySelectorAll('a[href^="#"]').forEach(a => {
+      a.addEventListener('click', e => {
+        const target = document.querySelector(a.getAttribute('href'));
+        if (!target) return;
+        e.preventDefault();
+        window.scrollTo({ top: target.getBoundingClientRect().top + window.scrollY - 80, behavior: 'smooth' });
+      });
+    });
+  </script>
+</body>
+</html>

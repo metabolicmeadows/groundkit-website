@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Terms of Service — GroundKit</title>
+  <meta name="description" content="GroundKit Terms of Service. Read about your rights, responsibilities, and our limitations as a soil-first gardening tool." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --forest:     #2E4F1A;
+      --forest-mid: #3A6422;
+      --terracotta: #B85C38;
+      --cream:      #F7F2E8;
+      --cream-dark: #EDE6D6;
+      --stone:      #8A7A6A;
+      --walnut:     #5A3A1A;
+      --walnut-dark:#3A2210;
+      --white:      #FFFDF8;
+      --font-serif: 'Playfair Display', Georgia, serif;
+      --font-sans:  'Inter', system-ui, sans-serif;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: var(--font-sans); background: var(--cream); color: var(--walnut-dark); line-height: 1.7; }
+    a { color: var(--forest); text-decoration: underline; }
+    a:hover { color: var(--forest-mid); }
+
+    .nav { position: sticky; top: 0; z-index: 100; background: rgba(247,242,232,0.95); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(90,58,26,0.1); padding: 0 24px; height: 64px; display: flex; align-items: center; justify-content: space-between; }
+    .nav-logo { font-family: var(--font-serif); font-size: 20px; font-weight: 700; color: var(--walnut-dark); text-decoration: none; }
+    .nav-back { font-size: 14px; font-weight: 500; color: var(--forest); text-decoration: none; }
+    .nav-back:hover { color: var(--forest-mid); }
+
+    .page-wrap { max-width: 760px; margin: 0 auto; padding: 64px 24px 96px; }
+
+    .page-header { margin-bottom: 48px; padding-bottom: 32px; border-bottom: 2px solid var(--cream-dark); }
+    .page-eyebrow { font-size: 12px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--terracotta); margin-bottom: 12px; }
+    .page-title { font-family: var(--font-serif); font-size: clamp(32px, 5vw, 48px); font-weight: 700; color: var(--walnut-dark); line-height: 1.15; margin-bottom: 16px; }
+    .page-meta { font-size: 14px; color: var(--stone); }
+
+    .intro-box { background: var(--white); border: 1px solid var(--cream-dark); border-left: 4px solid var(--forest); border-radius: 12px; padding: 20px 24px; margin-bottom: 48px; font-size: 15px; color: var(--walnut); }
+
+    .toc { background: var(--white); border: 1px solid var(--cream-dark); border-radius: 12px; padding: 24px 28px; margin-bottom: 48px; }
+    .toc-title { font-family: var(--font-serif); font-size: 16px; font-weight: 700; color: var(--walnut-dark); margin-bottom: 14px; }
+    .toc ol { padding-left: 20px; display: flex; flex-direction: column; gap: 6px; }
+    .toc li { font-size: 14px; color: var(--stone); }
+    .toc a { color: var(--forest); text-decoration: none; }
+    .toc a:hover { text-decoration: underline; }
+
+    .tos-section { margin-bottom: 48px; }
+    .section-number { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--terracotta); margin-bottom: 6px; }
+    .section-title { font-family: var(--font-serif); font-size: 24px; font-weight: 700; color: var(--walnut-dark); margin-bottom: 16px; scroll-margin-top: 80px; }
+    .tos-section p { font-size: 16px; color: var(--walnut); margin-bottom: 16px; }
+    .tos-section p:last-child { margin-bottom: 0; }
+    .tos-section ul { padding-left: 24px; margin-bottom: 16px; display: flex; flex-direction: column; gap: 8px; }
+    .tos-section li { font-size: 16px; color: var(--walnut); }
+    .tos-section strong { color: var(--walnut-dark); font-weight: 600; }
+    .tos-section h3 { font-family: var(--font-serif); font-size: 18px; font-weight: 700; color: var(--walnut-dark); margin: 24px 0 10px; }
+
+    .warning-box { background: #FFF8F0; border: 1px solid #E8C49A; border-left: 4px solid var(--terracotta); border-radius: 10px; padding: 16px 20px; margin: 20px 0; }
+    .warning-box p { font-size: 15px; color: var(--walnut); margin-bottom: 0; }
+
+    .section-divider { border: none; border-top: 1px solid var(--cream-dark); margin: 48px 0; }
+
+    .contact-card { background: var(--forest); color: var(--white); border-radius: 16px; padding: 32px; text-align: center; margin-top: 48px; }
+    .contact-card h3 { font-family: var(--font-serif); font-size: 22px; font-weight: 700; margin-bottom: 8px; }
+    .contact-card p { font-size: 15px; opacity: 0.75; margin-bottom: 20px; }
+    .contact-card a { display: inline-flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.15); color: var(--white); text-decoration: none; padding: 12px 24px; border-radius: 99px; font-size: 15px; font-weight: 600; border: 1px solid rgba(255,255,255,0.2); }
+    .contact-card a:hover { background: rgba(255,255,255,0.25); }
+
+    @media (max-width: 640px) {
+      .page-wrap { padding: 40px 20px 72px; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="nav">
+    <a href="../groundkit-website.html" class="nav-logo">GroundKit</a>
+    <a href="../groundkit-website.html" class="nav-back">← Back to site</a>
+  </nav>
+
+  <main class="page-wrap">
+
+    <header class="page-header">
+      <p class="page-eyebrow">Legal</p>
+      <h1 class="page-title">Terms of Service</h1>
+      <p class="page-meta">Effective Date: May 5, 2026 &nbsp;·&nbsp; Last Updated: May 5, 2026</p>
+    </header>
+
+    <div class="intro-box">
+      Welcome to GroundKit. These Terms are written in plain English on purpose — no dense legalese. By installing or using GroundKit, you agree to be bound by them. If something isn't clear, reach out — contact info is at the bottom.
+    </div>
+
+    <nav class="toc" aria-label="Table of contents">
+      <p class="toc-title">In this document</p>
+      <ol>
+        <li><a href="#acceptance">Acceptance of Terms</a></li>
+        <li><a href="#description">Description of Service</a></li>
+        <li><a href="#accounts">Use of the Service and Subscriptions</a></li>
+        <li><a href="#ip">Intellectual Property</a></li>
+        <li><a href="#warranties">Disclaimer of Warranties</a></li>
+        <li><a href="#liability">Limitation of Liability</a></li>
+        <li><a href="#data">User-Generated Content and Data</a></li>
+        <li><a href="#privacy">Privacy</a></li>
+        <li><a href="#prohibited">Prohibited Uses</a></li>
+        <li><a href="#termination">Termination</a></li>
+        <li><a href="#changes">Changes to These Terms</a></li>
+        <li><a href="#law">Governing Law</a></li>
+        <li><a href="#contact">Contact Information</a></li>
+      </ol>
+    </nav>
+
+    <section class="tos-section" id="acceptance">
+      <p class="section-number">Section 1</p>
+      <h2 class="section-title">Acceptance of Terms</h2>
+      <p>By downloading, installing, or using the GroundKit iOS application or visiting the associated website (collectively, the "Service"), you confirm that you have read, understood, and agree to these Terms of Service and any additional policies referenced herein, including the Privacy Policy.</p>
+      <p>If you are using GroundKit on behalf of an organization, you represent that you have the authority to bind that organization to these Terms.</p>
+      <p>You must be at least 13 years old to use GroundKit. If you are under 18, you should have a parent or guardian review these Terms with you.</p>
+    </section>
+
+    <hr class="section-divider" />
+
+    <section class="tos-section" id="description">
+      <p class="section-number">Section 2</p>
+      <h2 class="section-title">Description of Service</h2>
+      <p>GroundKit is a digital gardening and soil health tool designed for home gardeners, hobby farmers, and regenerative agriculture enthusiasts. The Service provides:</p>
+      <ul>
+        <li><strong>NPK soil calculations</strong> — estimates of nitrogen, phosphorus, and potassium needs based on user-provided soil test data</li>
+        <li><strong>Seed planning tools</strong> — guidance on plant selection, spacing, and scheduling</li>
+        <li><strong>Garden layout features</strong> — visual planning and bed arrangement tools</li>
+        <li><strong>Planting calendars</strong> — seasonal timing recommendations based on location and crop type</li>
+        <li><strong>Compost calculators</strong> — estimates for compost inputs and maturation timelines</li>
+      </ul>
+      <p>GroundKit is a digital tool only. We do not sell physical products, soil amendments, seeds, or any other goods.</p>
+      <div class="warning-box">
+        <p><strong>Important:</strong> GroundKit provides general soil and plant nutrition guidance based on the data you enter. It is not a substitute for professional advice from a licensed agronomist, certified crop advisor, soil scientist, or extension service. GroundKit does not provide human health, dietary, nutritional, or medical advice.</p>
+      </div>
+    </section>
+
+    <hr class="section-divider" />
+
+    <section class="tos-section" id="accounts">
+      <p class="section-number">Section 3</p>
+      <h2 class="section-title">Use of the Service and Subscriptions</h2>
+      <h3>No Account Required</h3>
+      <p>GroundKit does not require you to create an account or sign in. You can install the App and start using it immediately. All your garden, soil, and journal data is stored locally on your device.</p>
+      <h3>Your Responsibilities</h3>
+      <p>When using GroundKit, you agree to use the Service for lawful purposes only and to enter your own soil test data honestly and accurately. The quality of the app's recommendations depends on the accuracy of the data you provide.</p>
+      <h3>GroundKit Premium Subscriptions</h3>
+      <p>Some features of GroundKit are available only with a GroundKit Premium subscription. Subscriptions are sold and managed exclusively through Apple's App Store using StoreKit:</p>
+      <ul>
+        <li><strong>Pricing</strong> is shown in the App at the time of purchase. Apple converts and charges in your local currency.</li>
+        <li><strong>Auto-renewal:</strong> Monthly and annual subscriptions automatically renew at the end of each period unless you cancel at least 24 hours before the renewal date.</li>
+        <li><strong>Cancellation:</strong> You can cancel anytime by going to iOS Settings → [Your Name] → Subscriptions, or via the App Store app. Cancelling stops future renewals; you keep access until the end of the paid period.</li>
+        <li><strong>Refunds</strong> are handled by Apple, not by us. Use <a href="https://reportaproblem.apple.com" target="_blank" rel="noopener">reportaproblem.apple.com</a> to request a refund.</li>
+        <li><strong>Restoring purchases:</strong> If you reinstall the App or get a new device, tap "Restore Purchases" in the paywall to recover your subscription via your Apple ID.</li>
+      </ul>
+      <p>One-time purchases (such as Lifetime access) are non-refundable except as required by Apple's policies or applicable law.</p>
+    </section>
+
+    <hr class="section-divider" />
+
+    <section class="tos-section" id="ip">
+      <p class="section-number">Section 4</p>
+      <h2 class="section-title">Intellectual Property</h2>
+      <h3>GroundKit's Content</h3>
+      <p>All content, features, and functionality of the Service — including the app design, source code, algorithms, text, graphics, and logos — are owned by Metabolic Meadows LLC and are protected by applicable intellectual property laws.</p>
+      <p>You are granted a limited, non-exclusive, non-transferable, revocable license to use the Service for your personal, non-commercial purposes. This does not include the right to copy, modify, reverse engineer, or commercially exploit any part of the Service.</p>
+      <h3>Your Content</h3>
+      <p>You retain ownership of any data you input into GroundKit (such as your soil test results, garden layouts, and notes). By entering data into the Service, you grant GroundKit a limited license to use that data solely to provide you with the Service's features and functionality.</p>
+    </section>
+
+    <hr class="section-divider" />
+
+    <section class="tos-section" id="warranties">
+      <p class="section-number">Section 5</p>
+      <h2 class="section-title">Disclaimer of Warranties</h2>
+      <div class="warning-box">
+        <p><strong>Please read this carefully.</strong> GroundKit is provided "as is" and "as available," without warranties of any kind.</p>
+      </div>
+      <p>To the fullest extent permitted by law, Metabolic Meadows LLC expressly disclaims all warranties, including:</p>
+      <ul>
+        <li><strong>Accuracy of recommendations:</strong> NPK calculations and other outputs are estimates based on the data you provide and general horticultural guidelines. They may not be accurate for your specific conditions.</li>
+        <li><strong>Fitness for a particular purpose:</strong> GroundKit is not designed or validated for commercial agriculture, certified organic certification compliance, or professional agronomic use.</li>
+        <li><strong>Professional equivalence:</strong> The app is not a substitute for a licensed agronomist, certified crop advisor, or cooperative extension specialist.</li>
+        <li><strong>Uninterrupted service:</strong> We do not guarantee that the Service will always be available, error-free, or free of data loss.</li>
+        <li><strong>No health claims:</strong> GroundKit makes no claims about the effect of its recommendations on human health, nutrition, or food safety.</li>
+      </ul>
+    </section>
+
+    <hr class="section-divider" />
+
+    <section class="tos-section" id="liability">
+      <p class="section-number">Section 6</p>
+      <h2 class="section-title">Limitation of Liability</h2>
+      <p>To the maximum extent permitted by applicable law, Metabolic Meadows LLC will not be liable for any indirect, incidental, special, consequential, or punitive damages arising from your use of the Service. This includes crop loss, failed harvests, costs of purchasing soil amendments, loss of data, or any other losses related to your use of GroundKit.</p>
+      <p>In any case, the developer's total liability to you shall not exceed the amount you paid for the Service in the twelve (12) months preceding the claim (or $10 USD if you have not paid anything).</p>
+      <p>Some jurisdictions do not allow certain liability limitations, so some of the above may not apply to you.</p>
+    </section>
+
+    <hr class="section-divider" />
+
+    <section class="tos-section" id="data">
+      <p class="section-number">Section 7</p>
+      <h2 class="section-title">Your Data</h2>
+      <p>You may input soil test results, garden notes, layout data, and other information into GroundKit. All of this data is stored locally on your device and is never transmitted to us. You retain full ownership and control over it.</p>
+      <p>The quality of GroundKit's recommendations is entirely dependent on the accuracy of the data you input. We are not responsible for inaccurate results arising from incorrect or outdated data you provide.</p>
+      <p>To delete your data, open GroundKit and go to More → Clear All Saved Data, or simply uninstall the App, which removes all locally stored data automatically.</p>
+    </section>
+
+    <hr class="section-divider" />
+
+    <section class="tos-section" id="privacy">
+      <p class="section-number">Section 8</p>
+      <h2 class="section-title">Privacy</h2>
+      <p>GroundKit is designed to keep your data on your device. We do not collect personal information, do not use analytics or tracking, and do not share data with third parties. Subscription processing is handled entirely by Apple.</p>
+      <p>For the full details, see our <a href="privacy-policy.html">Privacy Policy</a>. By using GroundKit, you agree to the practices described there.</p>
+    </section>
+
+    <hr class="section-divider" />
+
+    <section class="tos-section" id="prohibited">
+      <p class="section-number">Section 9</p>
+      <h2 class="section-title">Prohibited Uses</h2>
+      <p>You agree not to use GroundKit to:</p>
+      <ul>
+        <li>Violate any applicable local, state, national, or international law or regulation</li>
+        <li>Attempt to gain unauthorized access to any part of the Service or its servers</li>
+        <li>Reverse engineer, decompile, or disassemble any portion of the app</li>
+        <li>Scrape or harvest data from the Service through automated means without written permission</li>
+        <li>Introduce malware, viruses, or other harmful code</li>
+        <li>Impersonate any person or entity</li>
+        <li>Use the Service for any commercial purpose without prior written consent</li>
+        <li>Circumvent any access controls, subscription limits, or feature restrictions</li>
+      </ul>
+      <p>We reserve the right to revoke access (including any active Premium subscription) for users who materially violate these rules.</p>
+    </section>
+
+    <hr class="section-divider" />
+
+    <section class="tos-section" id="termination">
+      <p class="section-number">Section 10</p>
+      <h2 class="section-title">Termination</h2>
+      <h3>Your Right to Stop Using the Service</h3>
+      <p>You can stop using GroundKit at any time. To delete all of your data, open the App and go to More → Clear All Saved Data, or uninstall the App, which automatically removes all locally stored data. To cancel a Premium subscription, go to iOS Settings → [Your Name] → Subscriptions.</p>
+      <h3>Our Right to Discontinue the Service</h3>
+      <p>We may discontinue or substantially modify the Service at any time. If we do, we will use reasonable efforts to notify you in advance via the App Store listing or an in-App notice.</p>
+      <p>Upon termination, your license to use the Service ends. Sections 4, 5, 6, and 12 survive termination.</p>
+    </section>
+
+    <hr class="section-divider" />
+
+    <section class="tos-section" id="changes">
+      <p class="section-number">Section 11</p>
+      <h2 class="section-title">Changes to These Terms</h2>
+      <p>We may update these Terms from time to time as the Service evolves. When we make material changes, we'll update the "Last Updated" date at the top and surface a notice in the App where feasible.</p>
+      <p>Your continued use of GroundKit after changes become effective constitutes your acceptance of the updated Terms. If you don't agree with the new Terms, please stop using the Service.</p>
+    </section>
+
+    <hr class="section-divider" />
+
+    <section class="tos-section" id="law">
+      <p class="section-number">Section 12</p>
+      <h2 class="section-title">Governing Law</h2>
+      <p>These Terms are governed by the laws of the Commonwealth of Virginia, United States, without regard to its conflict of law provisions.</p>
+      <p>Any disputes arising under or in connection with these Terms shall be resolved in the state or federal courts located in Virginia, and you consent to the personal jurisdiction of those courts.</p>
+      <p>If you are located outside the United States, please be aware that your information may be transferred to and processed in the United States.</p>
+    </section>
+
+    <hr class="section-divider" />
+
+    <section class="tos-section" id="contact">
+      <p class="section-number">Section 13</p>
+      <h2 class="section-title">Contact Information</h2>
+      <p>If you have questions about these Terms, something isn't clear, or you'd like to request data deletion, please reach out. We'll do our best to respond promptly.</p>
+    </section>
+
+    <div class="contact-card">
+      <h3>Questions? Get in touch.</h3>
+      <p>Metabolic Meadows LLC</p>
+      <a href="mailto:support@groundkitapp.com">support@groundkitapp.com</a>
+    </div>
+
+  </main>
+
+  <footer style="background: var(--walnut-dark); padding: 40px 24px; margin-top: 64px;">
+    <div style="max-width:760px; margin:0 auto; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+      <p style="font-family:var(--font-serif); font-size:18px; font-weight:700; color:var(--white);">GroundKit</p>
+      <p style="font-size:13px; color:rgba(255,255,255,0.35);">© 2026 GroundKit. All rights reserved.</p>
+      <div style="display:flex; gap:20px;">
+        <a href="privacy-policy.html" style="font-size:13px; color:rgba(255,255,255,0.45); text-decoration:none;">Privacy Policy</a>
+        <a href="terms-of-use.html" style="font-size:13px; color:rgba(255,255,255,0.45); text-decoration:none;">Terms of Service</a>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>

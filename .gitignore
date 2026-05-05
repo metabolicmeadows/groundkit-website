@@ -1,0 +1,16 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*~
+
+# Vercel local cache
+.vercel
+
+# Internal scratch — uncomment if you don't want these in the repo
+# DEPLOY.md
