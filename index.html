@@ -713,17 +713,18 @@
     <!-- ─── Hero — Full-screen garden video ─────────────────────────── -->
     <section class="hero" aria-labelledby="hero-headline">
 
-      <!-- Background video — uses Constrained Baseline H.264 for mobile autoplay
-           compatibility (iOS Safari is strict). hero_web.mp4 is the mobile-friendly
-           encoding; hero.mp4 (High profile) is kept as desktop fallback. -->
+      <!-- Background video — uses Constrained Baseline H.264 (hero_web.mp4)
+           for max iOS Safari autoplay compatibility. Single source: the mobile-friendly
+           encoding works perfectly on desktop too. JS below retries playback on any
+           user gesture if autoplay fails (e.g., iOS Low Power Mode). -->
       <div class="hero-video-wrap" aria-hidden="true">
-        <video autoplay muted loop playsinline preload="auto"
+        <video id="hero-video"
+               autoplay muted loop playsinline webkit-playsinline preload="auto"
                poster="website/images/hero_poster.jpg"
                disablePictureInPicture
                disableRemotePlayback
                x-webkit-airplay="deny">
-          <source src="website/images/hero_web.mp4" type="video/mp4" media="(max-width: 900px)" />
-          <source src="website/images/hero.mp4" type="video/mp4" />
+          <source src="website/images/hero_web.mp4" type="video/mp4" />
         </video>
       </div>
       <div class="hero-overlay" aria-hidden="true"></div>
@@ -1290,6 +1291,50 @@
         window.scrollTo({ top: target.getBoundingClientRect().top + window.scrollY - 80, behavior: 'smooth' });
       });
     });
+
+    // Hero video — aggressive autoplay strategy for mobile (iOS Safari, Low Power Mode, etc.)
+    // We attempt playback immediately, then retry on the first user interaction
+    // since iOS allows playback to start within a "user gesture" handler.
+    (function initHeroVideo() {
+      const v = document.getElementById('hero-video');
+      if (!v) return;
+
+      // Belt-and-suspenders: ensure these are set even if HTML is cached weirdly
+      v.muted = true;
+      v.playsInline = true;
+      v.setAttribute('playsinline', '');
+      v.setAttribute('webkit-playsinline', '');
+
+      let played = false;
+      const tryPlay = () => {
+        if (played) return;
+        const p = v.play();
+        if (p && typeof p.then === 'function') {
+          p.then(() => { played = true; })
+           .catch(() => { /* will retry on user interaction */ });
+        } else {
+          played = true;
+        }
+      };
+
+      // 1) Try immediately
+      tryPlay();
+
+      // 2) Retry when video metadata loads (sometimes autoplay needs the element ready)
+      v.addEventListener('loadedmetadata', tryPlay, { once: true });
+      v.addEventListener('canplay', tryPlay, { once: true });
+
+      // 3) Retry on first user gesture — iOS allows playback to begin in any
+      //    user-initiated event handler (touch, scroll, click).
+      const gestureEvents = ['touchstart', 'touchend', 'click', 'scroll', 'keydown'];
+      const onGesture = () => {
+        tryPlay();
+        gestureEvents.forEach(evt => document.removeEventListener(evt, onGesture));
+      };
+      gestureEvents.forEach(evt =>
+        document.addEventListener(evt, onGesture, { once: true, passive: true })
+      );
+    })();
   </script>
 </body>
 </html>
