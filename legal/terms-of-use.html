@@ -28,10 +28,9 @@
     a { color: var(--forest); text-decoration: underline; }
     a:hover { color: var(--forest-mid); }
 
-    .nav { position: sticky; top: 0; z-index: 100; background: rgba(247,242,232,0.95); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(90,58,26,0.1); padding: 0 24px; height: 64px; display: flex; align-items: center; justify-content: space-between; }
-    .nav-logo { font-family: var(--font-serif); font-size: 20px; font-weight: 700; color: var(--walnut-dark); text-decoration: none; }
-    .nav-back { font-size: 14px; font-weight: 500; color: var(--forest); text-decoration: none; }
-    .nav-back:hover { color: var(--forest-mid); }
+    .nav { position: sticky; top: 0; z-index: 100; background: rgba(247,242,232,0.95); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(90,58,26,0.1); padding: 0 24px; height: 56px; display: flex; align-items: center; }
+    .nav-back { font-size: 14px; font-weight: 500; color: var(--forest); text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+    .nav-back:hover { color: var(--forest-mid); text-decoration: underline; }
 
     .page-wrap { max-width: 760px; margin: 0 auto; padding: 64px 24px 96px; }
 
@@ -78,8 +77,7 @@
 <body>
 
   <nav class="nav">
-    <a href="../groundkit-website.html" class="nav-logo">GroundKit</a>
-    <a href="../groundkit-website.html" class="nav-back">← Back to site</a>
+    <a href="/" class="nav-back" aria-label="Return to GroundKit homepage">← Back to GroundKit</a>
   </nav>
 
   <main class="page-wrap">

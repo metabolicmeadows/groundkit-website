@@ -26,6 +26,13 @@
     margin: 0 auto;
     padding: 48px 24px 96px;
   }
+  .nav-back {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 14px; font-weight: 500;
+    color: var(--forest); text-decoration: none;
+    margin-bottom: 24px;
+  }
+  .nav-back:hover { text-decoration: underline; }
   header {
     border-bottom: 1px solid var(--border);
     padding-bottom: 24px;
@@ -81,6 +88,7 @@
 </head>
 <body>
 <main>
+  <a href="/" class="nav-back" aria-label="Return to GroundKit homepage">← Back to GroundKit</a>
   <header>
     <div class="tag">Legal</div>
     <h1>Privacy Policy</h1>
